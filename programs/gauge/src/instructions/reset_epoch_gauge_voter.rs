@@ -1,0 +1,60 @@
+//! Resets an [EpochGaugeVoter] to the latest power.
+
+use crate::*;
+use num_traits::ToPrimitive;
+use vipers::{assert_keys_eq, invariant, unwrap_int};
+
+/// Accounts for [gauge::reset_epoch_gauge_voter].
+#[derive(Accounts)]
+pub struct ResetEpochGaugeVoter<'info> {
+    pub gaugemeister: Account<'info, Gaugemeister>,
+    pub locker: Account<'info, locked_voter::Locker>,
+    pub escrow: Account<'info, locked_voter::Escrow>,
+
+    /// Gauge vote.
+    pub gauge_voter: Account<'info, GaugeVoter>,
+
+    /// The [EpochGaugeVoter].
+    #[account(mut)]
+    pub epoch_gauge_voter: Account<'info, EpochGaugeVoter>,
+}
+
+impl<'info> ResetEpochGaugeVoter<'info> {
+    /// Calculates the voting power.
+    fn power(&self) -> Option<u64> {
+        self.escrow.voting_power_at_time(
+            &self.locker.params,
+            self.gaugemeister.next_epoch_starts_at.to_i64()?,
+        )
+    }
+}
+
+pub fn handler(ctx: Context<ResetEpochGaugeVoter>) -> ProgramResult {
+    let voting_power = unwrap_int!(ctx.accounts.power());
+
+    let epoch_gauge_voter = &mut ctx.accounts.epoch_gauge_voter;
+    epoch_gauge_voter.voting_power = voting_power;
+    epoch_gauge_voter.weight_change_seqno = ctx.accounts.gauge_voter.weight_change_seqno;
+    Ok(())
+}
+
+impl<'info> Validate<'info> for ResetEpochGaugeVoter<'info> {
+    fn validate(&self) -> ProgramResult {
+        assert_keys_eq!(self.gaugemeister.locker, self.locker);
+        assert_keys_eq!(self.escrow, self.gauge_voter.escrow);
+        assert_keys_eq!(self.escrow.locker, self.locker);
+        assert_keys_eq!(self.escrow.owner, self.gauge_voter.owner);
+
+        let voting_epoch = self.gaugemeister.voting_epoch()?;
+        invariant!(
+            self.epoch_gauge_voter.voting_epoch == voting_epoch,
+            EpochClosed
+        );
+        invariant!(
+            self.epoch_gauge_voter.allocated_power == 0,
+            AllocatedPowerMustBeZero
+        );
+
+        Ok(())
+    }
+}

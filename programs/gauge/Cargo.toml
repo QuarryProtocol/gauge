@@ -1,0 +1,33 @@
+[package]
+name = "gauge"
+version = "0.1.0"
+description = "Allows Tribeca Voting Escrows to vote on token allocations between different Quarries."
+edition = "2021"
+homepage = "https://quarry.so"
+repository = "https://github.com/QuarryProtocol/gauge"
+authors = ["Quarry Team <team@quarry.so>"]
+license = "AGPL-3.0"
+keywords = ["solana", "anchor", "governance", "tribeca", "quarry"]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "gauge"
+path = "src/lib.rs"
+
+[features]
+no-entrypoint = []
+no-idl = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = ">=0.17"
+anchor-spl = ">=0.17"
+locked-voter = { version = "^0.3", features = ["cpi"] }
+quarry-operator = { version = "^1.11", features = ["cpi"] }
+quarry-mine = { version = "^1.11", features = ["cpi"] }
+num-traits = "0.2"
+vipers = "1.5.5"
+
+[dev-dependencies]
+proptest = { version = "1.0" }
