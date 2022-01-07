@@ -96,7 +96,7 @@ impl<'info> Validate<'info> for GaugeRevertVote<'info> {
     }
 }
 
-/// Event called in [gauge::gauge_commit_vote].
+/// Event called in [gauge::gauge_revert_vote].
 #[event]
 pub struct RevertGaugeVoteEvent {
     #[index]

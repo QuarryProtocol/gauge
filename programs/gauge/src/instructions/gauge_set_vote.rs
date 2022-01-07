@@ -83,7 +83,7 @@ impl<'info> Validate<'info> for GaugeSetVote<'info> {
     }
 }
 
-/// Event called in [gauge::gauge_commit_vote].
+/// Event called in [gauge::gauge_set_vote].
 #[event]
 pub struct SetGaugeVoteEvent {
     #[index]

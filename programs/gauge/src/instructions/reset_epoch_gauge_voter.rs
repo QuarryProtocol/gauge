@@ -30,11 +30,23 @@ impl<'info> ResetEpochGaugeVoter<'info> {
 }
 
 pub fn handler(ctx: Context<ResetEpochGaugeVoter>) -> ProgramResult {
+    let epoch_gauge_voter = &mut ctx.accounts.epoch_gauge_voter;
+    let prev_weight_change_seqno = epoch_gauge_voter.weight_change_seqno;
+    let prev_voting_power = epoch_gauge_voter.voting_power;
     let voting_power = unwrap_int!(ctx.accounts.power());
 
-    let epoch_gauge_voter = &mut ctx.accounts.epoch_gauge_voter;
     epoch_gauge_voter.voting_power = voting_power;
     epoch_gauge_voter.weight_change_seqno = ctx.accounts.gauge_voter.weight_change_seqno;
+
+    emit!(ResetEpochGaugeVoterEvent {
+        gaugemeister: ctx.accounts.gaugemeister.key(),
+        gauge_voter_owner: ctx.accounts.gauge_voter.owner,
+        prev_voting_power,
+        voting_power: epoch_gauge_voter.voting_power,
+        prev_weight_change_seqno,
+        weight_change_seqno: epoch_gauge_voter.weight_change_seqno
+    });
+
     Ok(())
 }
 
@@ -57,4 +69,19 @@ impl<'info> Validate<'info> for ResetEpochGaugeVoter<'info> {
 
         Ok(())
     }
+}
+
+/// Event called in [gauge::reset_epoch_gauge_voter].
+#[event]
+pub struct ResetEpochGaugeVoterEvent {
+    #[index]
+    /// The [Gaugemeister].
+    pub gaugemeister: Pubkey,
+    #[index]
+    /// Owner of the Escrow of the [GaugeVoter].
+    pub gauge_voter_owner: Pubkey,
+    pub prev_voting_power: u64,
+    pub voting_power: u64,
+    pub prev_weight_change_seqno: u64,
+    pub weight_change_seqno: u64,
 }
