@@ -12,12 +12,10 @@
 use anchor_lang::prelude::*;
 use vipers::Validate;
 
-mod events;
 mod instructions;
 mod macros;
 mod state;
 
-pub use events::*;
 pub use state::*;
 
 use instructions::*;
