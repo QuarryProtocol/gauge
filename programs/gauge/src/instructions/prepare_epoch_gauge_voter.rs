@@ -61,7 +61,7 @@ pub fn handler(ctx: Context<PrepareEpochGaugeVoter>, _bump: u8) -> ProgramResult
     emit!(PrepareEpochGaugeVoterEvent {
         gaugemeister: ctx.accounts.gaugemeister.key(),
         rewarder: ctx.accounts.gaugemeister.rewarder,
-        locker: self.locker.key(),
+        locker: ctx.accounts.locker.key(),
         gauge_voter_owner: ctx.accounts.gauge_voter.owner,
         voting_epoch,
         voting_power,
