@@ -35,6 +35,13 @@ pub fn handler(ctx: Context<CreateEpochGauge>, _bump: u8, voting_epoch: u32) -> 
     epoch_gauge.gauge = ctx.accounts.gauge.key();
     epoch_gauge.voting_epoch = voting_epoch;
     epoch_gauge.total_power = 0;
+
+    emit!(EpochGaugeCreateEvent {
+        gaugemeister: ctx.accounts.gauge.gaugemeister,
+        quarry: ctx.accounts.gauge.quarry,
+        voting_epoch,
+    });
+
     Ok(())
 }
 
@@ -42,4 +49,17 @@ impl<'info> Validate<'info> for CreateEpochGauge<'info> {
     fn validate(&self) -> ProgramResult {
         Ok(())
     }
+}
+
+#[event]
+/// Event called in called in [gauge::create_gauge_vote].
+pub struct EpochGaugeCreateEvent {
+    #[index]
+    /// The [Gaugemeister].
+    pub gaugemeister: Pubkey,
+    #[index]
+    /// The [quarry_mine::Quarry] being voted on.
+    pub quarry: Pubkey,
+    /// The epoch associated with this [EpochGauge].
+    pub voting_epoch: u32,
 }

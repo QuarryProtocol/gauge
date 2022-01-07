@@ -71,8 +71,9 @@ pub fn handler(
 
     emit!(GaugemeisterCreateEvent {
         gaugemeister: gaugemeister.key(),
-        operator: gaugemeister.operator,
-        locker: gaugemeister.locker,
+        rewarder: gaugemeister.rewarder,
+        locker_token_mint: ctx.accounts.locker.token_mint,
+        locker_governor: ctx.accounts.locker.governor,
         first_rewards_epoch: first_epoch_starts_at,
         foreman,
     });
@@ -92,10 +93,13 @@ pub struct GaugemeisterCreateEvent {
     /// The [Gaugemeister] being created.
     #[index]
     pub gaugemeister: Pubkey,
-    /// The Quarry [quarry_operator::Operator].
-    pub operator: Pubkey,
-    /// [locked_voter::Locker] which determines gauge weights.
-    pub locker: Pubkey,
+    /// The [Rewarder].
+    #[index]
+    pub rewarder: Pubkey,
+    /// Mint of the token that must be locked in the [Locker].
+    pub locker_token_mint: Pubkey,
+    /// Governor associated with the [Locker].
+    pub locker_governor: Pubkey,
     /// Account which may enable/disable gauges on the [Gaugemeister].
     pub foreman: Pubkey,
     /// The first rewards epoch.
