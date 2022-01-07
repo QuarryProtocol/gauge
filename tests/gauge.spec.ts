@@ -257,7 +257,7 @@ describe("Gauge", () => {
 
       await expectTXTable(
         await voterSDK.gauge.prepareEpochGaugeVoter({
-          gauge,
+          gaugemeister,
         }),
         "prepare epoch gauge voter",
         { verbosity: "error" }
@@ -378,7 +378,7 @@ describe("Gauge", () => {
       ).to.be.fulfilled;
       await expectTXTable(
         await voterSDK.gauge.prepareEpochGaugeVoter({
-          gauge,
+          gaugemeister,
         }),
         "prepare epoch gauge voter",
         { verbosity: "error" }

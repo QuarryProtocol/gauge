@@ -365,27 +365,20 @@ export class GaugeWrapper {
    * votes for an epoch.
    */
   async prepareEpochGaugeVoter({
-    gauge,
+    gaugemeister,
     owner = this.provider.wallet.publicKey,
     payer = this.provider.wallet.publicKey,
   }: {
-    gauge: PublicKey;
+    gaugemeister: PublicKey;
     owner?: PublicKey;
     payer?: PublicKey;
   }): Promise<TransactionEnvelope> {
-    const gaugeData = await this.fetchGauge(gauge);
-    if (!gaugeData) {
-      throw new Error("gauge not found");
-    }
-    const gmData = await this.fetchGaugemeister(gaugeData.gaugemeister);
+    const gmData = await this.fetchGaugemeister(gaugemeister);
     if (!gmData) {
       throw new Error("gaugemeister not found");
     }
     const [escrow] = await findEscrowAddress(gmData.locker, owner);
-    const [gaugeVoter] = await findGaugeVoterAddress(
-      gaugeData.gaugemeister,
-      escrow
-    );
+    const [gaugeVoter] = await findGaugeVoterAddress(gaugemeister, escrow);
 
     const [epochGaugeVoter, epochGaugeVoterBump] =
       await findEpochGaugeVoterAddress(
@@ -395,7 +388,7 @@ export class GaugeWrapper {
     return this.provider.newTX([
       this.program.instruction.prepareEpochGaugeVoter(epochGaugeVoterBump, {
         accounts: {
-          gaugemeister: gaugeData.gaugemeister,
+          gaugemeister,
           locker: gmData.locker,
           escrow,
           gaugeVoter,
