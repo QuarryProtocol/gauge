@@ -62,7 +62,7 @@ impl<'info> Validate<'info> for CreateGaugeVote<'info> {
 
 /// Event called in [gauge::create_gauge_vote].
 #[event]
-struct GaugeVoteCreateEvent {
+pub struct GaugeVoteCreateEvent {
     #[index]
     /// The [Gaugemeister].
     pub gaugemeister: Pubkey,

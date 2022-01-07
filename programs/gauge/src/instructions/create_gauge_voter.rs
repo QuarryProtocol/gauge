@@ -43,6 +43,13 @@ pub fn handler(ctx: Context<CreateGaugeVoter>, _bump: u8) -> ProgramResult {
     gauge_voter.owner = ctx.accounts.escrow.owner;
     gauge_voter.total_weight = 0;
     gauge_voter.weight_change_seqno = 0;
+
+    emit!(GaugeVoterCreateEvent {
+        gaugemeister: gauge_voter.gaugemeister,
+        rewarder: ctx.accounts.gaugemeister.rewarder,
+        gauge_voter_owner: gauge_voter.owner,
+    });
+
     Ok(())
 }
 
@@ -51,4 +58,18 @@ impl<'info> Validate<'info> for CreateGaugeVoter<'info> {
         assert_keys_eq!(self.escrow.locker, self.gaugemeister.locker);
         Ok(())
     }
+}
+
+/// Event called in [gauge::create_gauge_voter].
+#[event]
+pub struct GaugeVoterCreateEvent {
+    #[index]
+    /// The [Gaugemeister].
+    pub gaugemeister: Pubkey,
+    #[index]
+    /// The Rewarder.
+    pub rewarder: Pubkey,
+    #[index]
+    /// Owner of the Escrow of the [GaugeVoter].
+    pub gauge_voter_owner: Pubkey,
 }

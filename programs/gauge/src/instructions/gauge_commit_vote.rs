@@ -75,6 +75,17 @@ pub fn handler(ctx: Context<GaugeCommitVote>) -> ProgramResult {
 
     epoch_gauge.total_power = unwrap_int!(epoch_gauge.total_power.checked_add(next_vote_shares));
 
+    emit!(CommitGaugeVoteEvent {
+        gaugemeister: ctx.accounts.gauge.gaugemeister,
+        gauge: ctx.accounts.gauge.key(),
+        quarry: ctx.accounts.gauge.quarry,
+        gauge_voter_owner: ctx.accounts.gauge_voter.owner,
+        vote_shares_for_next_epoch: next_vote_shares,
+        voting_epoch: epoch_voter.voting_epoch,
+        updated_allocated_power: epoch_voter.allocated_power,
+        updated_total_power: epoch_gauge.total_power,
+    });
+
     Ok(())
 }
 
@@ -101,4 +112,29 @@ impl<'info> Validate<'info> for GaugeCommitVote<'info> {
 
         Ok(())
     }
+}
+
+/// Event called in [gauge::gauge_commit_vote].
+#[event]
+pub struct CommitGaugeVoteEvent {
+    #[index]
+    /// The [Gaugemeister].
+    pub gaugemeister: Pubkey,
+    #[index]
+    /// The [Gauge].
+    pub gauge: Pubkey,
+    #[index]
+    /// The [quarry_mine::Quarry] being voted on.
+    pub quarry: Pubkey,
+    #[index]
+    /// Owner of the Escrow of the [GaugeVoter].
+    pub gauge_voter_owner: Pubkey,
+    /// The epoch that the [GaugeVoter] is voting for.
+    pub voting_epoch: u32,
+    /// Vote shares for next epoch
+    pub vote_shares_for_next_epoch: u64,
+    /// The total amount of gauge voting power that has been allocated for the epoch voter.
+    pub updated_allocated_power: u64,
+    /// The total number of power to be applied to the latest voted epoch gauge.
+    pub updated_total_power: u64,
 }

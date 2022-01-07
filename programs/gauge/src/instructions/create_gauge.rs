@@ -50,3 +50,20 @@ impl<'info> Validate<'info> for CreateGauge<'info> {
         Ok(())
     }
 }
+
+/// Event called in [gauge::create_gauge].
+#[event]
+pub struct GaugeCreateEvent {
+    #[index]
+    /// The [Gaugemeister].
+    pub gaugemeister: Pubkey,
+    #[index]
+    /// The Rewarder.
+    pub rewarder: Pubkey,
+    #[index]
+    /// The [quarry_mine::Quarry] being voted on.
+    pub quarry: Pubkey,
+    #[index]
+    /// Owner of the Escrow of the [GaugeVoter].
+    pub gauge_voter_owner: Pubkey,
+}
