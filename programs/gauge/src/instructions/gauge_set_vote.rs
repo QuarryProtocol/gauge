@@ -47,10 +47,21 @@ impl<'info> GaugeSetVote<'info> {
         let vote = &mut self.gauge_vote;
 
         // update voter
+        let prev_total_weight = voter.total_weight;
         voter.total_weight = next_total_weight;
 
         // update vote
         vote.weight = weight;
+
+        emit!(SetGaugeVoteEvent {
+            gaugemeister: self.gaugemeister.key(),
+            gauge: self.gauge.key(),
+            quarry: self.gauge.quarry,
+            gauge_voter_owner: voter.owner,
+            vote_delegate: self.vote_delegate.key(),
+            prev_total_weight,
+            total_weight: voter.total_weight
+        });
 
         Ok(())
     }
@@ -70,4 +81,25 @@ impl<'info> Validate<'info> for GaugeSetVote<'info> {
         assert_keys_eq!(self.vote_delegate, self.escrow.vote_delegate);
         Ok(())
     }
+}
+
+/// Event called in [gauge::gauge_commit_vote].
+#[event]
+pub struct SetGaugeVoteEvent {
+    #[index]
+    /// The [Gaugemeister].
+    pub gaugemeister: Pubkey,
+    #[index]
+    /// The [Gauge].
+    pub gauge: Pubkey,
+    #[index]
+    /// The [quarry_mine::Quarry] being voted on.
+    pub quarry: Pubkey,
+    #[index]
+    /// Owner of the Escrow of the [GaugeVoter].
+    pub gauge_voter_owner: Pubkey,
+    #[index]
+    pub vote_delegate: Pubkey,
+    pub prev_total_weight: u32,
+    pub total_weight: u32,
 }
