@@ -160,3 +160,14 @@ pub struct EpochGaugeVote {
     /// ```
     pub allocated_power: u64,
 }
+
+impl EpochGaugeVote {
+    /// Finds the address of an [EpochGaugeVote] for a given [GaugeVote] and voting epoch.
+    pub fn find_program_address(gauge_vote: &Pubkey, voting_epoch: u32) -> (Pubkey, u8) {
+        let epoch_bytes = voting_epoch.to_le_bytes();
+        Pubkey::find_program_address(
+            &[b"EpochGaugeVote", gauge_vote.as_ref(), epoch_bytes.as_ref()],
+            &crate::ID,
+        )
+    }
+}
