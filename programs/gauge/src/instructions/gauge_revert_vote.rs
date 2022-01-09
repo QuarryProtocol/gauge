@@ -62,21 +62,11 @@ impl<'info> Validate<'info> for GaugeRevertVote<'info> {
         assert_keys_eq!(self.epoch_gauge.gauge, self.gauge);
         assert_keys_eq!(self.epoch_gauge_voter.gauge_voter, self.gauge_voter);
 
-        let (epoch_gauge_vote_key, _) = Pubkey::find_program_address(
-            &[
-                b"EpochGaugeVote",
-                self.gauge_vote.key().as_ref(),
-                voting_epoch.to_le_bytes().as_ref(),
-            ],
-            &crate::ID,
-        );
+        let (epoch_gauge_vote_key, _) =
+            EpochGaugeVote::find_program_address(&self.gauge_vote.key(), voting_epoch);
         assert_keys_eq!(epoch_gauge_vote_key, self.epoch_gauge_vote);
 
         invariant!(!self.gauge.is_disabled, CannotCommitGaugeDisabled);
-        invariant!(
-            self.epoch_gauge_voter.weight_change_seqno == self.gauge_voter.weight_change_seqno,
-            WeightSeqnoChanged
-        );
 
         assert_keys_eq!(self.escrow, self.gauge_voter.escrow);
         assert_keys_eq!(self.vote_delegate, self.escrow.vote_delegate);

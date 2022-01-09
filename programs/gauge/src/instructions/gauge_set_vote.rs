@@ -41,6 +41,11 @@ impl<'info> GaugeSetVote<'info> {
             invariant!(!self.gauge.is_disabled, CannotVoteGaugeDisabled);
         }
 
+        if self.gauge_vote.weight == weight {
+            // Don't do anything if the weight is not changed.
+            return Ok(());
+        }
+
         let next_total_weight = unwrap_int!(self.next_total_weight(weight));
 
         let voter = &mut self.gauge_voter;
@@ -48,6 +53,9 @@ impl<'info> GaugeSetVote<'info> {
 
         // update voter
         voter.total_weight = next_total_weight;
+
+        // record that the weights have changed.
+        voter.weight_change_seqno = unwrap_int!(voter.weight_change_seqno.checked_add(1));
 
         // update vote
         vote.weight = weight;
