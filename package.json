@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@gokiprotocol/client": "^0.5.4",
-    "@project-serum/anchor": "^0.20.0",
+    "@project-serum/anchor": "^0.20.1",
     "@quarryprotocol/quarry-sdk": "^1.11.9",
     "@rushstack/eslint-patch": "^1.1.0",
     "@saberhq/anchor-contrib": "^1.12.20",
