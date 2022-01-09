@@ -583,18 +583,32 @@ export class GaugeWrapper {
     owner = this.provider.wallet.publicKey,
     payer = this.provider.wallet.publicKey,
     skipEpochGaugeCreation = false,
+    checkGaugeVotesExist = true,
   }: {
+    /**
+     * The key of the Gaugemeister.
+     */
     gaugemeister: PublicKey;
     /**
      * List of all gauges to attempt to commit.
      */
     gauges: PublicKey[];
+    /**
+     * Escrow owner.
+     */
     owner?: PublicKey;
+    /**
+     * Funder of the EpochGaugeVotes.
+     */
     payer?: PublicKey;
     /**
      * If true, skips the creation of the epoch gauge if it is not found.
      */
     skipEpochGaugeCreation?: boolean;
+    /**
+     * If true, checks to see that a GaugeVote exists for each Gauge provided.
+     */
+    checkGaugeVotesExist?: boolean;
   }): Promise<TransactionEnvelope[]> {
     const gmData = await this.fetchGaugemeister(gaugemeister);
     if (!gmData) {
@@ -615,10 +629,13 @@ export class GaugeWrapper {
         return { gaugeKey, gaugeVote, epochGauge, epochGaugeBump };
       })
     );
-    const gaugeVotesInfo =
-      await this.provider.connection.getMultipleAccountsInfo(
-        myGaugeVotes.map((gv) => gv.gaugeVote)
-      );
+
+    const gaugeVotesInfo = checkGaugeVotesExist
+      ? await this.provider.connection.getMultipleAccountsInfo(
+          myGaugeVotes.map((gv) => gv.gaugeVote)
+        )
+      : [];
+
     const epochGaugesInfo = !skipEpochGaugeCreation
       ? await this.provider.connection.getMultipleAccountsInfo(
           myGaugeVotes.map((gv) => gv.epochGauge)
@@ -626,16 +643,13 @@ export class GaugeWrapper {
       : [];
 
     const voteTXs = await Promise.all(
-      gaugeVotesInfo.map(async (gvi, i) => {
-        if (!gvi) {
-          return null;
-        }
-        const myGaugeVote = myGaugeVotes[i];
-        if (!myGaugeVote) {
-          return null;
-        }
-
+      myGaugeVotes.map(async (myGaugeVote, i) => {
         const { gaugeKey, gaugeVote, epochGauge, epochGaugeBump } = myGaugeVote;
+
+        // if the gauge vote doesn't exist, don't commit the vote.
+        if (checkGaugeVotesExist && !gaugeVotesInfo[i]) {
+          return null;
+        }
 
         const createEpochGauge = !skipEpochGaugeCreation && !epochGaugesInfo[i];
 
