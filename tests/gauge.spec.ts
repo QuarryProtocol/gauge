@@ -263,25 +263,13 @@ describe("Gauge", () => {
         { verbosity: "error" }
       ).to.be.fulfilled;
 
-      // commit the votes
-      await expectTXTable(
-        await voterSDK.gauge.commitVote({
-          gauge,
-        }),
-        "commit gauge 1",
-        {
-          verbosity: "error",
-        }
-      ).to.be.fulfilled;
-      await expectTXTable(
-        await voterSDK.gauge.commitVote({
-          gauge: gauge2,
-        }),
-        "commit gauge 2",
-        {
-          verbosity: "error",
-        }
-      ).to.be.fulfilled;
+      const commitTXs = await voterSDK.gauge.commitVotes({
+        gaugemeister,
+        gauges: [gauge, gauge2],
+      });
+      for (const [i, commitTX] of commitTXs.entries()) {
+        await expectTXTable(commitTX, `commit gauge ${i + 1}`).to.be.fulfilled;
+      }
 
       const newGVData = await voterSDK.gauge.fetchGaugeVoter(gaugeVoter);
       invariant(newGVData);
@@ -438,15 +426,13 @@ describe("Gauge", () => {
       );
 
       // revert votes
-      await expectTXTable(
-        await voterSDK.gauge.revertVote({
-          gauge,
-        }),
-        "revert gauge",
-        {
-          verbosity: "error",
-        }
-      ).to.be.fulfilled;
+      const revertTXs = await voterSDK.gauge.revertVotes({
+        gaugemeister,
+        gauges: [gauge],
+      });
+      for (const [i, revertTX] of revertTXs.entries()) {
+        await expectTXTable(revertTX, `revert gauge ${i + 1}`).to.be.fulfilled;
+      }
 
       // vote weight allocation should remain after revert
       const gvAfterRevert = await voterSDK.gauge.fetchGaugeVoter(gaugeVoter);
