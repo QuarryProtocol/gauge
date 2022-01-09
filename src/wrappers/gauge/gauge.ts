@@ -879,4 +879,39 @@ export class GaugeWrapper {
       }),
     ]);
   }
+
+  /**
+   * Sets parameters on a given Gaugemeister.
+   */
+  async setGaugemeisterParams({
+    gaugemeister,
+    newEpochDurationSeconds,
+    newForeman,
+  }: {
+    gaugemeister: PublicKey;
+    newEpochDurationSeconds?: number;
+    newForeman?: PublicKey;
+  }): Promise<TransactionEnvelope> {
+    const gmData = await this.fetchGaugemeister(gaugemeister);
+    if (!gmData) {
+      throw new Error("gaugemeister data not found");
+    }
+
+    const epochDurationSeconds =
+      newEpochDurationSeconds ?? gmData.epochDurationSeconds;
+    const foreman = newForeman ?? gmData.foreman;
+
+    return this.provider.newTX([
+      this.program.instruction.setGaugemeisterParams(
+        epochDurationSeconds,
+        foreman,
+        {
+          accounts: {
+            gaugemeister,
+            foreman: gmData.foreman,
+          },
+        }
+      ),
+    ]);
+  }
 }

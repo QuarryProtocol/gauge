@@ -12,6 +12,7 @@ pub mod gauge_revert_vote;
 pub mod gauge_set_vote;
 pub mod prepare_epoch_gauge_voter;
 pub mod reset_epoch_gauge_voter;
+pub mod set_gaugemeister_params;
 pub mod sync_gauge;
 pub mod trigger_next_epoch;
 
@@ -27,5 +28,6 @@ pub use gauge_revert_vote::*;
 pub use gauge_set_vote::*;
 pub use prepare_epoch_gauge_voter::*;
 pub use reset_epoch_gauge_voter::*;
+pub use set_gaugemeister_params::*;
 pub use sync_gauge::*;
 pub use trigger_next_epoch::*;

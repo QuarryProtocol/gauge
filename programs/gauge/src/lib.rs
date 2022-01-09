@@ -134,6 +134,16 @@ pub mod gauge {
     pub fn sync_gauge(ctx: Context<SyncGauge>) -> ProgramResult {
         sync_gauge::handler(ctx)
     }
+
+    /// Sets the gaugemeister params.
+    #[access_control(ctx.accounts.validate())]
+    pub fn set_gaugemeister_params(
+        ctx: Context<SetGaugemeisterParams>,
+        new_epoch_duration_seconds: u32,
+        new_foreman: Pubkey,
+    ) -> ProgramResult {
+        set_gaugemeister_params::handler(ctx, new_epoch_duration_seconds, new_foreman)
+    }
 }
 
 /// Errors.
