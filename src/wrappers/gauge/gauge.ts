@@ -511,6 +511,111 @@ export class GaugeWrapper {
   }
 
   /**
+   * Commits votes for multiple gauges.
+   * @returns
+   */
+  async commitVotes({
+    gaugemeister,
+    gauges,
+    owner = this.provider.wallet.publicKey,
+    payer = this.provider.wallet.publicKey,
+    skipEpochGaugeCreation = false,
+  }: {
+    gaugemeister: PublicKey;
+    gauges: PublicKey[];
+    owner?: PublicKey;
+    payer?: PublicKey;
+    /**
+     * If true, skips the creation of the epoch gauge if it is not found.
+     */
+    skipEpochGaugeCreation?: boolean;
+  }): Promise<TransactionEnvelope[]> {
+    const gmData = await this.fetchGaugemeister(gaugemeister);
+    if (!gmData) {
+      throw new Error("gaugemeister not found");
+    }
+    const [escrow] = await findEscrowAddress(gmData.locker, owner);
+    const [gaugeVoter] = await findGaugeVoterAddress(gaugemeister, escrow);
+
+    const votingEpoch = gmData.currentRewardsEpoch + 1;
+
+    const myGaugeVotes = await Promise.all(
+      gauges.map(async (gaugeKey) => {
+        const [gaugeVote] = await findGaugeVoteAddress(gaugeVoter, gaugeKey);
+        const [epochGauge, epochGaugeBump] = await findEpochGaugeAddress(
+          gaugeKey,
+          votingEpoch
+        );
+        return { gaugeKey, gaugeVote, epochGauge, epochGaugeBump };
+      })
+    );
+    const gaugeVotesInfo =
+      await this.provider.connection.getMultipleAccountsInfo(
+        myGaugeVotes.map((gv) => gv.gaugeVote)
+      );
+    const epochGaugesInfo = !skipEpochGaugeCreation
+      ? await this.provider.connection.getMultipleAccountsInfo(
+          myGaugeVotes.map((gv) => gv.epochGauge)
+        )
+      : [];
+
+    const voteTXs = await Promise.all(
+      gaugeVotesInfo.map(async (gvi, i) => {
+        if (!gvi) {
+          return null;
+        }
+        const myGaugeVote = myGaugeVotes[i];
+        if (!myGaugeVote) {
+          return null;
+        }
+
+        const { gaugeKey, gaugeVote, epochGauge, epochGaugeBump } = myGaugeVote;
+
+        const createEpochGauge = !skipEpochGaugeCreation && !epochGaugesInfo[i];
+
+        const [epochGaugeVoter] = await findEpochGaugeVoterAddress(
+          gaugeVoter,
+          votingEpoch
+        );
+        const [epochGaugeVote, voteBump] = await findEpochGaugeVoteAddress(
+          gaugeVote,
+          gmData.currentRewardsEpoch + 1
+        );
+        const accounts = {
+          gaugemeister,
+          gauge: gaugeKey,
+          gaugeVoter,
+          gaugeVote,
+          payer,
+          systemProgram: SystemProgram.programId,
+          epochGauge,
+          epochGaugeVoter,
+          epochGaugeVote,
+        };
+        return this.provider.newTX([
+          createEpochGauge &&
+            this.program.instruction.createEpochGauge(
+              epochGaugeBump,
+              votingEpoch,
+              {
+                accounts: {
+                  epochGauge,
+                  gauge: gaugeKey,
+                  payer,
+                  systemProgram: SystemProgram.programId,
+                },
+              }
+            ),
+          this.program.instruction.gaugeCommitVote(voteBump, {
+            accounts,
+          }),
+        ]);
+      })
+    );
+    return voteTXs.filter((tx): tx is TransactionEnvelope => !!tx);
+  }
+
+  /**
    * Reverts a vote.
    * @returns
    */

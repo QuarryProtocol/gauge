@@ -62,6 +62,9 @@ impl<'info> Validate<'info> for GaugeRevertVote<'info> {
         assert_keys_eq!(self.epoch_gauge.gauge, self.gauge);
         assert_keys_eq!(self.epoch_gauge_voter.gauge_voter, self.gauge_voter);
 
+        assert_keys_eq!(self.gauge_vote.gauge_voter, self.gauge_voter);
+        assert_keys_eq!(self.gauge_vote.gauge, self.gauge);
+
         let (epoch_gauge_vote_key, _) =
             EpochGaugeVote::find_program_address(&self.gauge_vote.key(), voting_epoch);
         assert_keys_eq!(epoch_gauge_vote_key, self.epoch_gauge_vote);
