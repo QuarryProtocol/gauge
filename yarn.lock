@@ -261,7 +261,7 @@ __metadata:
     typescript: ^4.5.4
   peerDependencies:
     "@gokiprotocol/client": ^0.5
-    "@project-serum/anchor": ^0.19
+    "@project-serum/anchor": ">=0.19"
     "@quarryprotocol/quarry-sdk": ^1.11.5
     "@saberhq/anchor-contrib": ^1.10.6
     "@saberhq/solana-contrib": ^1.10.6
