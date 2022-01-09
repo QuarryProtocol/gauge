@@ -73,10 +73,6 @@ impl<'info> Validate<'info> for GaugeRevertVote<'info> {
         assert_keys_eq!(epoch_gauge_vote_key, self.epoch_gauge_vote);
 
         invariant!(!self.gauge.is_disabled, CannotCommitGaugeDisabled);
-        invariant!(
-            self.epoch_gauge_voter.weight_change_seqno == self.gauge_voter.weight_change_seqno,
-            WeightSeqnoChanged
-        );
 
         assert_keys_eq!(self.escrow, self.gauge_voter.escrow);
         assert_keys_eq!(self.vote_delegate, self.escrow.vote_delegate);

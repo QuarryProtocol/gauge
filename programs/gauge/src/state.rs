@@ -77,6 +77,11 @@ pub struct GaugeVoter {
     pub total_weight: u32,
     /// This number gets incremented whenever weights are changed.
     /// Use this to determine if votes must be re-committed.
+    ///
+    /// This is primarily used when provisioning an [EpochGaugeVoter]:
+    /// 1. When one wants to commit their votes, they call [gauge::prepare_epoch_gauge_voter]
+    /// 2. The [Self::weight_change_seqno] gets written to [EpochGaugeVoter::weight_change_seqno].
+    /// 3. In [gauge::gauge_commit_vote], if the [Self::weight_change_seqno] has changed, the transaction is blocked with a [ErrorCode::WeightSeqnoChanged] error.
     pub weight_change_seqno: u64,
 }
 
@@ -125,8 +130,8 @@ pub struct EpochGaugeVoter {
     /// The epoch that the [GaugeVoter] is voting for.
     pub voting_epoch: u32,
     /// The [GaugeVoter::weight_change_seqno] at the time of creating the [EpochGaugeVoter].
-    /// If this number is less than any [GaugeVote::weight_change_seqno],
-    /// this gauge is stale and must be reset before applying any new votes for this epoch.
+    /// If this number is not equal to the [GaugeVoter::weight_change_seqno],
+    /// this commitment is stale and must be reset before applying any new votes for this epoch.
     pub weight_change_seqno: u64,
     /// The total amount of voting power.
     pub voting_power: u64,
