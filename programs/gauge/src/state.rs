@@ -91,9 +91,6 @@ pub struct GaugeVote {
 
     /// Proportion of votes that the voter is applying to this gauge.
     pub weight: u32,
-    /// This number gets incremented whenever weights are changed.
-    /// Use this to determine if votes must be re-committed.
-    pub weight_change_seqno: u64,
 }
 
 /// An [EpochGauge] is a [Gauge]'s total committed votes for a given epoch.

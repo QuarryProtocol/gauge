@@ -41,7 +41,6 @@ pub fn handler(ctx: Context<CreateGaugeVote>, _bump: u8) -> ProgramResult {
     gauge_vote.gauge = ctx.accounts.gauge.key();
 
     gauge_vote.weight = 0;
-    gauge_vote.weight_change_seqno = ctx.accounts.gauge_voter.weight_change_seqno;
     Ok(())
 }
 

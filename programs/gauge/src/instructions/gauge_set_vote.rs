@@ -49,6 +49,9 @@ impl<'info> GaugeSetVote<'info> {
         // update voter
         voter.total_weight = next_total_weight;
 
+        // record that the weights have changed.
+        voter.weight_change_seqno = unwrap_int!(voter.weight_change_seqno.checked_add(1));
+
         // update vote
         vote.weight = weight;
 
