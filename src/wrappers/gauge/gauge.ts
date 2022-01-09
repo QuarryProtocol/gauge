@@ -317,6 +317,73 @@ export class GaugeWrapper {
   }
 
   /**
+   * Sets multiple votes.
+   * @returns Transactions
+   */
+  async setVotes({
+    gaugemeister,
+    weights,
+    owner = this.provider.wallet.publicKey,
+  }: {
+    gaugemeister: PublicKey;
+    weights: {
+      gauge: PublicKey;
+      weight: number;
+    }[];
+    owner?: PublicKey;
+  }): Promise<TransactionEnvelope[]> {
+    const gmData = await this.fetchGaugemeister(gaugemeister);
+    if (!gmData) {
+      throw new Error("gaugemeister not found");
+    }
+    const [escrow] = await findEscrowAddress(gmData.locker, owner);
+    const [gaugeVoter] = await findGaugeVoterAddress(gaugemeister, escrow);
+
+    const gaugeVotes = await Promise.all(
+      weights.map(async ({ gauge }) => {
+        const [gaugeVote] = await findGaugeVoteAddress(gaugeVoter, gauge);
+        return { gaugeVote };
+      })
+    );
+    const gaugeVotesData =
+      await this.provider.connection.getMultipleAccountsInfo(
+        gaugeVotes.map((gv) => gv.gaugeVote)
+      );
+
+    return await Promise.all(
+      weights.map(async ({ gauge, weight }, i) => {
+        const gvData = gaugeVotesData[i];
+        const [gaugeVote, gvBump] = await findGaugeVoteAddress(
+          gaugeVoter,
+          gauge
+        );
+        return this.provider.newTX([
+          !gvData &&
+            this.program.instruction.createGaugeVote(gvBump, {
+              accounts: {
+                gaugeVoter,
+                gaugeVote,
+                gauge,
+                payer: this.provider.wallet.publicKey,
+                systemProgram: SystemProgram.programId,
+              },
+            }),
+          this.program.instruction.gaugeSetVote(weight, {
+            accounts: {
+              escrow,
+              gaugemeister,
+              gauge,
+              gaugeVoter,
+              gaugeVote,
+              voteDelegate: owner,
+            },
+          }),
+        ]);
+      })
+    );
+  }
+
+  /**
    * Resets the Epoch Gauge Voter.
    */
   async resetEpochGaugeVoter({
