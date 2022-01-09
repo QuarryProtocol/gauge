@@ -30,10 +30,11 @@ impl<'info> ResetEpochGaugeVoter<'info> {
 }
 
 pub fn handler(ctx: Context<ResetEpochGaugeVoter>) -> ProgramResult {
+    let voting_power = unwrap_int!(ctx.accounts.power());
+
     let epoch_gauge_voter = &mut ctx.accounts.epoch_gauge_voter;
     let prev_weight_change_seqno = epoch_gauge_voter.weight_change_seqno;
     let prev_voting_power = epoch_gauge_voter.voting_power;
-    let voting_power = unwrap_int!(ctx.accounts.power());
 
     epoch_gauge_voter.voting_power = voting_power;
     epoch_gauge_voter.weight_change_seqno = ctx.accounts.gauge_voter.weight_change_seqno;
