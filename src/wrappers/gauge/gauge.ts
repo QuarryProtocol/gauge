@@ -324,25 +324,21 @@ export class GaugeWrapper {
    * Resets the Epoch Gauge Voter.
    */
   async resetEpochGaugeVoter({
-    gauge,
+    gaugemeister,
     owner = this.provider.wallet.publicKey,
   }: {
-    gauge: PublicKey;
+    /**
+     * The Gaugemeister to reset.
+     */
+    gaugemeister: PublicKey;
     owner?: PublicKey;
   }): Promise<TransactionEnvelope> {
-    const gaugeData = await this.fetchGauge(gauge);
-    if (!gaugeData) {
-      throw new Error("gauge not found");
-    }
-    const gmData = await this.fetchGaugemeister(gaugeData.gaugemeister);
+    const gmData = await this.fetchGaugemeister(gaugemeister);
     if (!gmData) {
       throw new Error("gaugemeister not found");
     }
     const [escrow] = await findEscrowAddress(gmData.locker, owner);
-    const [gaugeVoter] = await findGaugeVoterAddress(
-      gaugeData.gaugemeister,
-      escrow
-    );
+    const [gaugeVoter] = await findGaugeVoterAddress(gaugemeister, escrow);
     const [epochGaugeVoter] = await findEpochGaugeVoterAddress(
       gaugeVoter,
       gmData.currentRewardsEpoch + 1
@@ -350,7 +346,7 @@ export class GaugeWrapper {
     return this.provider.newTX([
       this.program.instruction.resetEpochGaugeVoter({
         accounts: {
-          gaugemeister: gaugeData.gaugemeister,
+          gaugemeister,
           locker: gmData.locker,
           escrow,
           gaugeVoter,
