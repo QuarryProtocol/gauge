@@ -69,6 +69,15 @@ pub fn handler(
     gaugemeister.locker_token_mint = ctx.accounts.locker.token_mint;
     gaugemeister.locker_governor = ctx.accounts.locker.governor;
 
+    emit!(GaugemeisterCreateEvent {
+        gaugemeister: gaugemeister.key(),
+        rewarder: gaugemeister.rewarder,
+        locker_token_mint: ctx.accounts.locker.token_mint,
+        locker_governor: ctx.accounts.locker.governor,
+        first_rewards_epoch: first_epoch_starts_at,
+        foreman,
+    });
+
     Ok(())
 }
 
@@ -76,4 +85,23 @@ impl<'info> Validate<'info> for CreateGaugemeister<'info> {
     fn validate(&self) -> ProgramResult {
         Ok(())
     }
+}
+
+/// Event called in [gauge::create_gaugemeister].
+#[event]
+pub struct GaugemeisterCreateEvent {
+    /// The [Gaugemeister] being created.
+    #[index]
+    pub gaugemeister: Pubkey,
+    /// The [Rewarder].
+    #[index]
+    pub rewarder: Pubkey,
+    /// Mint of the token that must be locked in the [Locker].
+    pub locker_token_mint: Pubkey,
+    /// Governor associated with the [Locker].
+    pub locker_governor: Pubkey,
+    /// Account which may enable/disable gauges on the [Gaugemeister].
+    pub foreman: Pubkey,
+    /// The first rewards epoch.
+    pub first_rewards_epoch: u64,
 }

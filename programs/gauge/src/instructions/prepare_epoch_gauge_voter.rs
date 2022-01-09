@@ -57,6 +57,17 @@ pub fn handler(ctx: Context<PrepareEpochGaugeVoter>, _bump: u8) -> ProgramResult
     epoch_gauge_voter.weight_change_seqno = ctx.accounts.gauge_voter.weight_change_seqno;
     epoch_gauge_voter.voting_power = voting_power;
     epoch_gauge_voter.allocated_power = 0;
+
+    emit!(PrepareEpochGaugeVoterEvent {
+        gaugemeister: ctx.accounts.gaugemeister.key(),
+        rewarder: ctx.accounts.gaugemeister.rewarder,
+        locker: ctx.accounts.locker.key(),
+        gauge_voter_owner: ctx.accounts.gauge_voter.owner,
+        voting_epoch,
+        voting_power,
+        weight_change_seqno: epoch_gauge_voter.weight_change_seqno,
+    });
+
     Ok(())
 }
 
@@ -69,4 +80,27 @@ impl<'info> Validate<'info> for PrepareEpochGaugeVoter<'info> {
 
         Ok(())
     }
+}
+
+/// Event called in [gauge::prepare_epoch_gauge_voter].
+#[event]
+pub struct PrepareEpochGaugeVoterEvent {
+    #[index]
+    /// The [Gaugemeister].
+    pub gaugemeister: Pubkey,
+    #[index]
+    /// The [Rewarder]
+    pub rewarder: Pubkey,
+    #[index]
+    /// The assocated [locked_voter::Locker].
+    pub locker: Pubkey,
+    #[index]
+    /// The owner of the [GaugeVoter].
+    pub gauge_voter_owner: Pubkey,
+    /// The epoch that the [GaugeVoter] is voting for.
+    pub voting_epoch: u32,
+    /// The total amount of voting power.
+    pub voting_power: u64,
+    /// The [GaugeVoter::weight_change_seqno] at the time of creating the [EpochGaugeVoter].
+    pub weight_change_seqno: u64,
 }

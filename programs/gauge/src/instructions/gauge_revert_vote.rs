@@ -43,6 +43,17 @@ pub fn handler(ctx: Context<GaugeRevertVote>) -> ProgramResult {
         unwrap_int!(epoch_voter.allocated_power.checked_sub(power_subtract));
     epoch_gauge.total_power = unwrap_int!(epoch_gauge.total_power.checked_sub(power_subtract));
 
+    emit!(RevertGaugeVoteEvent {
+        gaugemeister: ctx.accounts.gaugemeister.key(),
+        gauge: ctx.accounts.gauge.key(),
+        quarry: ctx.accounts.gauge.quarry,
+        gauge_voter_owner: ctx.accounts.gauge_voter.owner,
+        subtracted_power: power_subtract,
+        voting_epoch: epoch_voter.voting_epoch,
+        updated_allocated_power: epoch_voter.allocated_power,
+        updated_total_power: epoch_gauge.total_power,
+    });
+
     Ok(())
 }
 
@@ -76,4 +87,29 @@ impl<'info> Validate<'info> for GaugeRevertVote<'info> {
 
         Ok(())
     }
+}
+
+/// Event called in [gauge::gauge_revert_vote].
+#[event]
+pub struct RevertGaugeVoteEvent {
+    #[index]
+    /// The [Gaugemeister].
+    pub gaugemeister: Pubkey,
+    #[index]
+    /// The [Gauge].
+    pub gauge: Pubkey,
+    #[index]
+    /// The [quarry_mine::Quarry] being voted on.
+    pub quarry: Pubkey,
+    #[index]
+    /// Owner of the Escrow of the [GaugeVoter].
+    pub gauge_voter_owner: Pubkey,
+    /// The epoch that the [GaugeVoter] is voting for.
+    pub voting_epoch: u32,
+    /// Allocated power subtracted
+    pub subtracted_power: u64,
+    /// The total amount of gauge voting power that has been allocated for the epoch voter.
+    pub updated_allocated_power: u64,
+    /// The total number of power to be applied to the latest voted epoch gauge.
+    pub updated_total_power: u64,
 }
