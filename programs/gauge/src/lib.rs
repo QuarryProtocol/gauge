@@ -123,19 +123,20 @@ pub mod gauge {
         gauge_disable::handler(ctx)
     }
 
-    /// Trigger the next epoch. Permissionless.
+    /// Triggers the next epoch. Permissionless.
     #[access_control(ctx.accounts.validate())]
     pub fn trigger_next_epoch(ctx: Context<TriggerNextEpoch>) -> ProgramResult {
         trigger_next_epoch::handler(ctx)
     }
 
-    /// Synchronizes the gauge with the rewards. Permissionless.
+    /// Synchronizes the [quarry_mine::Quarry] with the relevant [EpochGauge]. Permissionless.
     #[access_control(ctx.accounts.validate())]
     pub fn sync_gauge(ctx: Context<SyncGauge>) -> ProgramResult {
         sync_gauge::handler(ctx)
     }
 
-    /// Sets the gaugemeister params.
+    /// Sets new parameters on the [Gaugemeister].
+    /// Only the [Gaugemeister::foreman] may call this.
     #[access_control(ctx.accounts.validate())]
     pub fn set_gaugemeister_params(
         ctx: Context<SetGaugemeisterParams>,
