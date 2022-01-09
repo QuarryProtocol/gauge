@@ -142,7 +142,7 @@ pub mod gauge {
         new_epoch_duration_seconds: u32,
         new_foreman: Pubkey,
     ) -> ProgramResult {
-        set_gaugemeister_params::handler(ctx, new_foreman, new_epoch_duration_seconds)
+        set_gaugemeister_params::handler(ctx, new_epoch_duration_seconds, new_foreman)
     }
 }
 
