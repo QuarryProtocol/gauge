@@ -290,10 +290,6 @@ export class GaugeWrapper {
       gaugeData.gaugemeister,
       escrow
     );
-    const gvrData = await this.fetchGaugeVoter(gaugeVoter);
-    if (!gvrData) {
-      throw new Error("gauge voter not found");
-    }
     const [gaugeVote, gvBump] = await findGaugeVoteAddress(gaugeVoter, gauge);
     const gvData = await this.fetchGaugeVote(gaugeVote);
     return this.provider.newTX([
@@ -309,7 +305,7 @@ export class GaugeWrapper {
         }),
       this.program.instruction.gaugeSetVote(weight, {
         accounts: {
-          escrow: gvrData.escrow,
+          escrow,
           gaugemeister: gaugeData.gaugemeister,
           gauge,
           gaugeVoter,
