@@ -265,6 +265,34 @@ export class GaugeWrapper {
   }
 
   /**
+   * Disable a Gauge.
+   * @returns
+   */
+  async disableGauge({
+    gauge,
+  }: {
+    gauge: PublicKey;
+  }): Promise<TransactionEnvelope> {
+    const gaugeData = await this.fetchGauge(gauge);
+    if (!gaugeData) {
+      throw new Error("gauge data not found");
+    }
+    const gmData = await this.fetchGaugemeister(gaugeData.gaugemeister);
+    if (!gmData) {
+      throw new Error("gaugemeister data not found");
+    }
+    return this.provider.newTX([
+      this.program.instruction.gaugeDisable({
+        accounts: {
+          gaugemeister: gaugeData.gaugemeister,
+          gauge,
+          foreman: gmData.foreman,
+        },
+      }),
+    ]);
+  }
+
+  /**
    * Sets a vote.
    * @returns
    */
