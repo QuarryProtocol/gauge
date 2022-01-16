@@ -345,6 +345,110 @@ export class GaugeWrapper {
   }
 
   /**
+   * Creates votes if they do not exist.
+   *
+   * @returns The {@link TransactionEnvelope}s to create votes.
+   */
+  async createMissingVotes({
+    gaugemeister,
+    gauges,
+    owner = this.provider.wallet.publicKey,
+  }: {
+    gaugemeister: PublicKey;
+    gauges: PublicKey[];
+    owner?: PublicKey;
+  }): Promise<TransactionEnvelope[]> {
+    const gmData = await this.fetchGaugemeister(gaugemeister);
+    if (!gmData) {
+      throw new Error("gaugemeister not found");
+    }
+    const [escrow] = await findEscrowAddress(gmData.locker, owner);
+    const [gaugeVoter] = await findGaugeVoterAddress(gaugemeister, escrow);
+
+    const gaugeVotes = await Promise.all(
+      gauges.map(async (gauge) => {
+        const [gaugeVote] = await findGaugeVoteAddress(gaugeVoter, gauge);
+        return { gaugeVote };
+      })
+    );
+    const gaugeVotesData =
+      await this.provider.connection.getMultipleAccountsInfo(
+        gaugeVotes.map((gv) => gv.gaugeVote)
+      );
+
+    const result = await Promise.all(
+      gauges.map(async (gauge, i) => {
+        const gvData = gaugeVotesData[i];
+        const [gaugeVote, gvBump] = await findGaugeVoteAddress(
+          gaugeVoter,
+          gauge
+        );
+        if (!gvData) {
+          return this.provider.newTX([
+            this.program.instruction.createGaugeVote(gvBump, {
+              accounts: {
+                gaugeVoter,
+                gaugeVote,
+                gauge,
+                payer: this.provider.wallet.publicKey,
+                systemProgram: SystemProgram.programId,
+              },
+            }),
+          ]);
+        }
+        return null;
+      })
+    );
+    return result.filter((tx): tx is TransactionEnvelope => !!tx);
+  }
+
+  /**
+   * Sets multiple votes without checking to see that the proper gauges have been created.
+   * @returns Transactions
+   */
+  async setVotesUnchecked({
+    gaugemeister,
+    weights,
+    owner = this.provider.wallet.publicKey,
+  }: {
+    gaugemeister: PublicKey;
+    weights: {
+      gauge: PublicKey;
+      weight: number;
+    }[];
+    owner?: PublicKey;
+  }): Promise<TransactionEnvelope[]> {
+    const gmData = await this.fetchGaugemeister(gaugemeister);
+    if (!gmData) {
+      throw new Error("gaugemeister not found");
+    }
+    const [escrow] = await findEscrowAddress(gmData.locker, owner);
+    const [gaugeVoter] = await findGaugeVoterAddress(gaugemeister, escrow);
+
+    const gaugeVotes = await Promise.all(
+      weights.map(async ({ gauge, weight }) => {
+        const [gaugeVote] = await findGaugeVoteAddress(gaugeVoter, gauge);
+        return { gaugeVote, gauge, weight };
+      })
+    );
+
+    return gaugeVotes.map(({ gauge, weight, gaugeVote }) => {
+      return this.provider.newTX([
+        this.program.instruction.gaugeSetVote(weight, {
+          accounts: {
+            escrow,
+            gaugemeister,
+            gauge,
+            gaugeVoter,
+            gaugeVote,
+            voteDelegate: owner,
+          },
+        }),
+      ]);
+    });
+  }
+
+  /**
    * Sets multiple votes.
    * @returns Transactions
    */
