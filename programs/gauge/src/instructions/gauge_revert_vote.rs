@@ -80,8 +80,6 @@ impl<'info> Validate<'info> for GaugeRevertVote<'info> {
             EpochGaugeVote::find_program_address(&self.gauge_vote.key(), voting_epoch);
         assert_keys_eq!(epoch_gauge_vote_key, self.epoch_gauge_vote);
 
-        invariant!(!self.gauge.is_disabled, CannotCommitGaugeDisabled);
-
         assert_keys_eq!(self.escrow, self.gauge_voter.escrow);
         assert_keys_eq!(self.vote_delegate, self.escrow.vote_delegate);
 
