@@ -5,7 +5,6 @@ import type { PublicKey } from "@solana/web3.js";
 import { Keypair, SystemProgram } from "@solana/web3.js";
 import { findEscrowAddress } from "@tribecahq/tribeca-sdk";
 
-import { GAUGE_CODERS } from "../..";
 import { DEFAULT_EPOCH_DURATION_SECONDS } from "../../constants";
 import type {
   EpochGaugeData,
@@ -940,13 +939,6 @@ export class GaugeWrapper {
         }
         const myGaugeVote = myGaugeVotes[i];
         if (!myGaugeVote) {
-          return null;
-        }
-
-        // don't revert votes that have zero vote weight
-        const epochGaugeVoteData =
-          GAUGE_CODERS.Gauge.accountParsers.epochGaugeVote(gvi.data);
-        if (epochGaugeVoteData.allocatedPower.isZero()) {
           return null;
         }
 
