@@ -1,5 +1,6 @@
 //! Commits the votes for a [Gauge].
 
+use num_traits::ToPrimitive;
 use vipers::{assert_keys_eq, invariant, unwrap_int};
 
 use crate::*;
@@ -50,9 +51,10 @@ impl<'info> GaugeCommitVote<'info> {
             return Some(0);
         }
         let power: u64 = self.epoch_gauge_voter.voting_power;
-        let total_shares = power
+        let total_shares = (power as u128)
             .checked_mul(self.gauge_vote.weight.into())?
-            .checked_div(self.gauge_voter.total_weight.into())?;
+            .checked_div(self.gauge_voter.total_weight.into())?
+            .to_u64()?;
         msg!("power: {}, shares: {}", power, total_shares);
         Some(total_shares)
     }
