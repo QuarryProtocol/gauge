@@ -1056,9 +1056,9 @@ dependencies = [
 
 [[package]]
 name = "quarry-operator"
-version = "1.11.10"
+version = "1.11.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6737f464dc3dea7c9ea602372393b847cb432b7acaf868ca8fdc3fa3fe503dc6"
+checksum = "d3406ef7357caae20114f75eb88a724faaa1df71010d791ff72ac1b45e680197"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
