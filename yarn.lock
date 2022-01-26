@@ -244,7 +244,7 @@ __metadata:
     "@types/prettier": ^2.4.3
     "@yarnpkg/doctor": ^3.1.0
     bn.js: ^5.2.0
-    chai: ^4.3.5
+    chai: =4.3.4
     eslint: ^8.7.0
     eslint-import-resolver-node: ^0.3.6
     eslint-plugin-import: ^2.25.4
@@ -1838,7 +1838,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chai@npm:^4.3.4":
+"chai@npm:=4.3.4, chai@npm:^4.3.4":
   version: 4.3.4
   resolution: "chai@npm:4.3.4"
   dependencies:
@@ -1849,21 +1849,6 @@ __metadata:
     pathval: ^1.1.1
     type-detect: ^4.0.5
   checksum: 772c522b3bfe3fcf0e0e74edfe584cd886b0e85a73126dec750095300e023d4e1ec6d40e3c35a80d2bd8f33dca46c42767a36f5f50f32dca6fa31c88b5f49ab8
-  languageName: node
-  linkType: hard
-
-"chai@npm:^4.3.5":
-  version: 4.3.5
-  resolution: "chai@npm:4.3.5"
-  dependencies:
-    assertion-error: ^1.1.0
-    check-error: ^1.0.2
-    deep-eql: ^3.0.1
-    get-func-name: ^2.0.0
-    loupe: ^2.3.0
-    pathval: ^1.1.1
-    type-detect: ^4.0.5
-  checksum: 9514b03fa3fd4331d31cb6067d83b9ccb338e293d3686b2f431fd442e457e9fd8a999d4c9435a025c0e4af8795f047eb54294516d5f33cfe2d1bd6bfbcd911db
   languageName: node
   linkType: hard
 
@@ -3834,16 +3819,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loupe@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "loupe@npm:2.3.0"
-  dependencies:
-    get-func-name: ^2.0.0
-    type-detect: ^4.0.8
-  checksum: 376a08e174e87973ab74751dd07f05c9814a66a47fd458314478a03a1e38746e18104005591676a19c6368d8e057bbf68757f235c7210a39e78b9eefae5563e3
-  languageName: node
-  linkType: hard
-
 "lower-case@npm:^2.0.2":
   version: 2.0.2
   resolution: "lower-case@npm:2.0.2"
@@ -5493,7 +5468,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"type-detect@npm:^4.0.0, type-detect@npm:^4.0.5, type-detect@npm:^4.0.8":
+"type-detect@npm:^4.0.0, type-detect@npm:^4.0.5":
   version: 4.0.8
   resolution: "type-detect@npm:4.0.8"
   checksum: 62b5628bff67c0eb0b66afa371bd73e230399a8d2ad30d852716efcc4656a7516904570cd8631a49a3ce57c10225adf5d0cbdcb47f6b0255fe6557c453925a15

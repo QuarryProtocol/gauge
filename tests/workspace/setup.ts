@@ -1,7 +1,7 @@
 import { GokiSDK } from "@gokiprotocol/client";
 import type { Operator, RewarderWrapper } from "@quarryprotocol/quarry-sdk";
 import { findMinterAddress, QuarrySDK } from "@quarryprotocol/quarry-sdk";
-import { expectTXTable } from "@saberhq/chai-solana";
+import { chaiSolana, expectTXTable } from "@saberhq/chai-solana";
 import { Token, TokenAmount, u64 } from "@saberhq/token-utils";
 import type { PublicKey } from "@solana/web3.js";
 import {
@@ -10,9 +10,12 @@ import {
   TribecaSDK,
 } from "@tribecahq/tribeca-sdk";
 import BN from "bn.js";
+import * as chai from "chai";
 import invariant from "tiny-invariant";
 
 import type { GaugeSDK } from "../../src";
+
+chai.use(chaiSolana);
 
 /**
  * Sets up the Tribeca voting escrow and Quarry Rewarder and locks tokens.
