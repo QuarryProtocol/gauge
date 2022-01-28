@@ -27,7 +27,7 @@ locked-voter = { version = "^0.3", features = ["cpi"] }
 quarry-operator = { version = "^1.11", features = ["cpi"] }
 quarry-mine = { version = "^1.11", features = ["cpi"] }
 num-traits = "0.2"
-vipers = "1.5.8"
+vipers = "1.5.9"
 
 [dev-dependencies]
 proptest = { version = "1.0" }
