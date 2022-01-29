@@ -1,6 +1,6 @@
 {
   "name": "@quarryprotocol/gauge",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "The TypeScript SDK for Quarry Gauge.",
   "keywords": [
     "solana",
