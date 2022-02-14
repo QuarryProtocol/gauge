@@ -174,10 +174,18 @@ pub mod gauge {
         delegated_gauge_revert_vote::handler(ctx)
     }
 
-    /// Sets the [GaugeDelegation::vote_setter]. Only the [Escrow::vote_delegate] may call this.
+    /// Sets the [GaugeDelegation::vote_setter]. Only the [locked_voter::Escrow::vote_delegate] may call this.
     #[access_control(ctx.accounts.validate())]
     pub fn delegation_set_vote_setter(ctx: Context<DelegationSetVoteSetter>) -> ProgramResult {
         delegation_set_vote_setter::handler(ctx)
+    }
+
+    /// Sets the [GaugeDelegation::vote_committer]. Only the [locked_voter::Escrow::vote_delegate] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn delegation_set_vote_committer(
+        ctx: Context<DelegationSetVoteCommitter>,
+    ) -> ProgramResult {
+        delegation_set_vote_committer::handler(ctx)
     }
 }
 
