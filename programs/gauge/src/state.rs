@@ -179,6 +179,9 @@ pub struct GaugeDelegation {
     /// The [GaugeVoter].
     pub gauge_voter: Pubkey,
 
-    /// Address which can call [delegate_gauge_set_vote] on behalf of the [Self::gauge_voter].
+    /// Address which can call [gauge::delegated_gauge_set_vote] on behalf of the [Self::gauge_voter].
     pub vote_setter: Pubkey,
+
+    /// UNIMPLEMENTED: account which is allowed to commit votes on behalf of the gauge.
+    pub vote_committer: Pubkey,
 }

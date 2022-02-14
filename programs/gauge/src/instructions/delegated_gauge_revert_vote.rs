@@ -4,28 +4,28 @@ use vipers::assert_keys_eq;
 
 use crate::*;
 
-/// Accounts for [gauge::delegated_gauge_set_vote].
+/// Accounts for [gauge::delegated_gauge_revert_vote].
 #[derive(Accounts)]
-pub struct DelegatedGaugeSetVote<'info> {
+pub struct DelegatedGaugeRevertVote<'info> {
     /// Common accounts for setting gauge votes.
-    /// The [GaugeSetVote::vote_delegate] is overloaded to be the [GaugeDelegation::vote_setter].
-    pub common: GaugeSetVote<'info>,
+    /// The [GaugeRevertVote::vote_delegate] is overloaded to be the [GaugeDelegation::vote_setter].
+    pub common: GaugeRevertVote<'info>,
     /// The [GaugeDelegation].
     pub gauge_delegation: AccountLoader<'info, GaugeDelegation>,
 }
 
-impl<'info> DelegatedGaugeSetVote<'info> {
+impl<'info> DelegatedGaugeRevertVote<'info> {
     /// Sets a non-zero vote.
-    fn set_vote(&mut self, weight: u32) -> ProgramResult {
-        self.common.set_vote(weight)
+    fn revert_vote(&mut self) -> ProgramResult {
+        self.common.revert_vote()
     }
 }
 
-pub fn handler(ctx: Context<DelegatedGaugeSetVote>, weight: u32) -> ProgramResult {
-    ctx.accounts.set_vote(weight)
+pub fn handler(ctx: Context<DelegatedGaugeRevertVote>) -> ProgramResult {
+    ctx.accounts.revert_vote()
 }
 
-impl<'info> Validate<'info> for DelegatedGaugeSetVote<'info> {
+impl<'info> Validate<'info> for DelegatedGaugeRevertVote<'info> {
     fn validate(&self) -> ProgramResult {
         let delegation = self.gauge_delegation.load()?;
         self.common.validate_without_delegate()?;

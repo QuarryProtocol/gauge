@@ -81,7 +81,7 @@ pub fn handler(ctx: Context<GaugeSetVote>, weight: u32) -> ProgramResult {
 }
 
 impl<'info> GaugeSetVote<'info> {
-    pub(crate) fn validate_delegated(&self) -> ProgramResult {
+    pub(crate) fn validate_without_delegate(&self) -> ProgramResult {
         assert_keys_eq!(self.gaugemeister, self.gauge.gaugemeister);
         assert_keys_eq!(self.gauge, self.gauge_vote.gauge);
         assert_keys_eq!(self.gauge_voter, self.gauge_vote.gauge_voter);
@@ -93,7 +93,7 @@ impl<'info> GaugeSetVote<'info> {
 
 impl<'info> Validate<'info> for GaugeSetVote<'info> {
     fn validate(&self) -> ProgramResult {
-        self.validate_delegated()?;
+        self.validate_without_delegate()?;
         assert_keys_eq!(self.vote_delegate, self.escrow.vote_delegate);
         Ok(())
     }

@@ -33,32 +33,8 @@ pub struct GaugeRevertVote<'info> {
     pub payer: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<GaugeRevertVote>) -> ProgramResult {
-    let epoch_gauge = &mut ctx.accounts.epoch_gauge;
-    let epoch_voter = &mut ctx.accounts.epoch_gauge_voter;
-    let epoch_vote = &mut ctx.accounts.epoch_gauge_vote;
-
-    let power_subtract = epoch_vote.allocated_power;
-    epoch_voter.allocated_power =
-        unwrap_int!(epoch_voter.allocated_power.checked_sub(power_subtract));
-    epoch_gauge.total_power = unwrap_int!(epoch_gauge.total_power.checked_sub(power_subtract));
-
-    emit!(RevertGaugeVoteEvent {
-        gaugemeister: ctx.accounts.gaugemeister.key(),
-        gauge: ctx.accounts.gauge.key(),
-        quarry: ctx.accounts.gauge.quarry,
-        gauge_voter_owner: ctx.accounts.gauge_voter.owner,
-        subtracted_power: power_subtract,
-        voting_epoch: epoch_voter.voting_epoch,
-        updated_allocated_power: epoch_voter.allocated_power,
-        updated_total_power: epoch_gauge.total_power,
-    });
-
-    Ok(())
-}
-
-impl<'info> Validate<'info> for GaugeRevertVote<'info> {
-    fn validate(&self) -> ProgramResult {
+impl<'info> GaugeRevertVote<'info> {
+    pub(crate) fn validate_without_delegate(&self) -> ProgramResult {
         assert_keys_eq!(self.gaugemeister, self.gauge.gaugemeister);
         let voting_epoch = self.gaugemeister.voting_epoch()?;
         invariant!(
@@ -81,8 +57,43 @@ impl<'info> Validate<'info> for GaugeRevertVote<'info> {
         assert_keys_eq!(epoch_gauge_vote_key, self.epoch_gauge_vote);
 
         assert_keys_eq!(self.escrow, self.gauge_voter.escrow);
-        assert_keys_eq!(self.vote_delegate, self.escrow.vote_delegate);
 
+        Ok(())
+    }
+
+    pub(crate) fn revert_vote(&mut self) -> ProgramResult {
+        let epoch_gauge = &mut self.epoch_gauge;
+        let epoch_voter = &mut self.epoch_gauge_voter;
+        let epoch_vote = &mut self.epoch_gauge_vote;
+
+        let power_subtract = epoch_vote.allocated_power;
+        epoch_voter.allocated_power =
+            unwrap_int!(epoch_voter.allocated_power.checked_sub(power_subtract));
+        epoch_gauge.total_power = unwrap_int!(epoch_gauge.total_power.checked_sub(power_subtract));
+
+        emit!(RevertGaugeVoteEvent {
+            gaugemeister: self.gaugemeister.key(),
+            gauge: self.gauge.key(),
+            quarry: self.gauge.quarry,
+            gauge_voter_owner: self.gauge_voter.owner,
+            subtracted_power: power_subtract,
+            voting_epoch: epoch_voter.voting_epoch,
+            updated_allocated_power: epoch_voter.allocated_power,
+            updated_total_power: epoch_gauge.total_power,
+        });
+
+        Ok(())
+    }
+}
+
+pub fn handler(ctx: Context<GaugeRevertVote>) -> ProgramResult {
+    ctx.accounts.revert_vote()
+}
+
+impl<'info> Validate<'info> for GaugeRevertVote<'info> {
+    fn validate(&self) -> ProgramResult {
+        self.validate_without_delegate()?;
+        assert_keys_eq!(self.vote_delegate, self.escrow.vote_delegate);
         Ok(())
     }
 }

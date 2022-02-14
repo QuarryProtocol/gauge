@@ -167,6 +167,13 @@ pub mod gauge {
         delegated_gauge_set_vote::handler(ctx, weight)
     }
 
+    /// Reverts a committed vote of a [Gauge] using the [GaugeDelegation].
+    /// Only the [GaugeDelegation::vote_setter] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn delegated_gauge_revert_vote(ctx: Context<DelegatedGaugeRevertVote>) -> ProgramResult {
+        delegated_gauge_revert_vote::handler(ctx)
+    }
+
     /// Sets the [GaugeDelegation::vote_setter]. Only the [Escrow::vote_delegate] may call this.
     #[access_control(ctx.accounts.validate())]
     pub fn delegation_set_vote_setter(ctx: Context<DelegationSetVoteSetter>) -> ProgramResult {
