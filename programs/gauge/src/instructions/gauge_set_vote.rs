@@ -36,7 +36,7 @@ impl<'info> GaugeSetVote<'info> {
     }
 
     /// Sets a non-zero vote.
-    fn set_vote(&mut self, weight: u32) -> ProgramResult {
+    pub(crate) fn set_vote(&mut self, weight: u32) -> ProgramResult {
         if weight != 0 {
             invariant!(!self.gauge.is_disabled, CannotVoteGaugeDisabled);
         }
@@ -80,13 +80,20 @@ pub fn handler(ctx: Context<GaugeSetVote>, weight: u32) -> ProgramResult {
     ctx.accounts.set_vote(weight)
 }
 
-impl<'info> Validate<'info> for GaugeSetVote<'info> {
-    fn validate(&self) -> ProgramResult {
+impl<'info> GaugeSetVote<'info> {
+    pub(crate) fn validate_delegated(&self) -> ProgramResult {
         assert_keys_eq!(self.gaugemeister, self.gauge.gaugemeister);
         assert_keys_eq!(self.gauge, self.gauge_vote.gauge);
         assert_keys_eq!(self.gauge_voter, self.gauge_vote.gauge_voter);
 
         assert_keys_eq!(self.escrow, self.gauge_voter.escrow);
+        Ok(())
+    }
+}
+
+impl<'info> Validate<'info> for GaugeSetVote<'info> {
+    fn validate(&self) -> ProgramResult {
+        self.validate_delegated()?;
         assert_keys_eq!(self.vote_delegate, self.escrow.vote_delegate);
         Ok(())
     }

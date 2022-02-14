@@ -10,7 +10,7 @@
 #![deny(clippy::unwrap_used)]
 
 use anchor_lang::prelude::*;
-use vipers::Validate;
+use vipers::prelude::*;
 
 mod instructions;
 mod macros;
@@ -144,6 +144,33 @@ pub mod gauge {
         new_foreman: Pubkey,
     ) -> ProgramResult {
         set_gaugemeister_params::handler(ctx, new_epoch_duration_seconds, new_foreman)
+    }
+
+    // Delegation
+
+    /// Creates a [GaugeDelegation] for a [GaugeVoter]. Permissionless.
+    #[access_control(ctx.accounts.validate())]
+    pub fn create_gauge_delegation(
+        ctx: Context<CreateGaugeDelegation>,
+        _bump: u8,
+    ) -> ProgramResult {
+        create_gauge_delegation::handler(ctx)
+    }
+
+    /// Sets the vote of a [Gauge] using the [GaugeDelegation].
+    /// Only the [GaugeDelegation::vote_setter] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn delegated_gauge_set_vote(
+        ctx: Context<DelegatedGaugeSetVote>,
+        weight: u32,
+    ) -> ProgramResult {
+        delegated_gauge_set_vote::handler(ctx, weight)
+    }
+
+    /// Sets the [GaugeDelegation::vote_setter]. Only the [Escrow::vote_delegate] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn delegation_set_vote_setter(ctx: Context<DelegationSetVoteSetter>) -> ProgramResult {
+        delegation_set_vote_setter::handler(ctx)
     }
 }
 

@@ -171,3 +171,14 @@ impl EpochGaugeVote {
         )
     }
 }
+
+/// Enables delegating vote allocations to another address.
+#[account(zero_copy)]
+#[derive(Debug, Default)]
+pub struct GaugeDelegation {
+    /// The [GaugeVoter].
+    pub gauge_voter: Pubkey,
+
+    /// Address which can call [delegate_gauge_set_vote] on behalf of the [Self::gauge_voter].
+    pub vote_setter: Pubkey,
+}
