@@ -23,7 +23,7 @@ default = []
 [dependencies]
 anchor-lang = ">=0.17"
 anchor-spl = ">=0.17"
-locked-voter = { version = "^0.3", features = ["cpi"] }
+locked-voter = { version = "^0.4", features = ["cpi"] }
 quarry-operator = { version = "^1.11", features = ["cpi"] }
 quarry-mine = { version = "^1.11", features = ["cpi"] }
 num-traits = "0.2"
