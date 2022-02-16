@@ -7,7 +7,6 @@ use crate::*;
 
 /// Accounts for [gauge::create_gauge_delegation].
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct CreateGaugeDelegation<'info> {
     /// The [Gauge] to be created.
     #[account(
@@ -16,7 +15,7 @@ pub struct CreateGaugeDelegation<'info> {
             b"GaugeDelegation".as_ref(),
             gauge_voter.key().as_ref(),
         ],
-        bump = bump,
+        bump,
         payer = payer
     )]
     pub gauge_delegation: AccountLoader<'info, GaugeDelegation>,

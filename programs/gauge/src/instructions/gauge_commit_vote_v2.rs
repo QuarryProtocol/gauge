@@ -8,7 +8,6 @@ use crate::*;
 
 /// Accounts for [gauge::gauge_commit_vote].
 #[derive(Accounts)]
-#[instruction(vote_bump: u8)]
 pub struct GaugeCommitVoteV2<'info> {
     /// The [Gaugemeister].
     pub gaugemeister: Account<'info, Gaugemeister>,
@@ -34,7 +33,7 @@ pub struct GaugeCommitVoteV2<'info> {
             gauge_vote.key().as_ref(),
             epoch_gauge_voter.voting_epoch.to_le_bytes().as_ref(),
         ],
-        bump = vote_bump,
+        bump,
         payer = payer
     )]
     pub epoch_gauge_vote: Account<'info, EpochGaugeVote>,
