@@ -14,12 +14,6 @@ pub struct GaugeCommitVoteV2<'info> {
     pub escrow: Account<'info, locked_voter::Escrow>,
     /// The [Escrow::vote_delegate].
     pub vote_delegate: Signer<'info>,
-
-    /// Funder of the [EpochGaugeVote] to create.
-    #[account(mut)]
-    pub payer: Signer<'info>,
-    /// The [System] program.
-    pub system_program: Program<'info, System>,
 }
 
 pub fn handler(ctx: Context<GaugeCommitVoteV2>) -> ProgramResult {
