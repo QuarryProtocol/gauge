@@ -1,6 +1,6 @@
 [package]
 name = "gauge"
-version = "0.2.0"
+version = "0.2.1"
 description = "Allows Tribeca Voting Escrows to vote on token allocations between different Quarries."
 edition = "2021"
 homepage = "https://quarry.so"
