@@ -8,12 +8,12 @@ use crate::*;
 /// Accounts for [gauge::create_gauge_delegation].
 #[derive(Accounts)]
 pub struct CreateGaugeDelegation<'info> {
-    /// The [Gauge] to be created.
+    /// The [GaugeDelegation] to be created.
     #[account(
         init,
         seeds = [
             b"GaugeDelegation".as_ref(),
-            gauge_voter.key().as_ref(),
+            gauge_voter.key().as_ref()
         ],
         bump,
         payer = payer

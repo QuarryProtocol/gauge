@@ -13,7 +13,7 @@ pub struct CreateGaugeVote<'info> {
         seeds = [
             b"GaugeVote".as_ref(),
             gauge_voter.key().as_ref(),
-            gauge.key().as_ref(),
+            gauge.key().as_ref()
         ],
         bump,
         payer = payer

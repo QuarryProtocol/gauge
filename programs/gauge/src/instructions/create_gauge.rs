@@ -13,7 +13,7 @@ pub struct CreateGauge<'info> {
         seeds = [
             b"Gauge".as_ref(),
             gaugemeister.key().as_ref(),
-            quarry.key().as_ref(),
+            quarry.key().as_ref()
         ],
         bump,
         payer = payer

@@ -13,7 +13,7 @@ pub struct CreateGaugemeister<'info> {
         init,
         seeds = [
             b"Gaugemeister".as_ref(),
-            base.key().as_ref(),
+            base.key().as_ref()
         ],
         bump,
         payer = payer

@@ -16,7 +16,7 @@ pub struct DelegatedGaugeCommitVote<'info> {
 
 impl<'info> DelegatedGaugeCommitVote<'info> {
     fn commit_vote(&mut self) -> ProgramResult {
-        self.common.commit_vote()
+        self.common.common.commit_vote()
     }
 }
 
@@ -28,7 +28,7 @@ impl<'info> Validate<'info> for DelegatedGaugeCommitVote<'info> {
     fn validate(&self) -> ProgramResult {
         let delegation = self.gauge_delegation.load()?;
         self.common.validate_without_delegate()?;
-        assert_keys_eq!(self.common.gauge_voter, delegation.gauge_voter);
+        assert_keys_eq!(self.common.common.gauge_voter, delegation.gauge_voter);
         assert_keys_eq!(self.common.vote_delegate, delegation.vote_committer);
         Ok(())
     }

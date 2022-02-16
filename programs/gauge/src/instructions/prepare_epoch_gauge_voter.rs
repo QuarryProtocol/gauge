@@ -6,23 +6,24 @@ use vipers::{assert_keys_eq, unwrap_int};
 
 /// Accounts for [gauge::prepare_epoch_gauge_voter].
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct PrepareEpochGaugeVoter<'info> {
+    /// [GaugeVoter::gaugemeister].
     pub gaugemeister: Account<'info, Gaugemeister>,
+    /// [Escrow::locker].
     pub locker: Account<'info, locked_voter::Locker>,
+    /// [GaugeVoter::escrow].
     pub escrow: Account<'info, locked_voter::Escrow>,
 
-    /// Gauge vote.
+    /// Gauge voter.
     pub gauge_voter: Account<'info, GaugeVoter>,
 
     /// The [EpochGaugeVoter].
     #[account(
         init,
         seeds = [
-            b"EpochGaugeVoter",
+            b"EpochGaugeVoter".as_ref(),
             gauge_voter.key().as_ref(),
-            #[allow(clippy::unwrap_used)]
-            gaugemeister.current_rewards_epoch.checked_add(1).unwrap().to_le_bytes().as_ref()
+            gaugemeister.voting_epoch_unwrapped().to_le_bytes().as_ref()
         ],
         bump,
         payer = payer
@@ -92,7 +93,7 @@ pub struct PrepareEpochGaugeVoterEvent {
     /// The [Rewarder]
     pub rewarder: Pubkey,
     #[index]
-    /// The assocated [locked_voter::Locker].
+    /// The associated [locked_voter::Locker].
     pub locker: Pubkey,
     #[index]
     /// The owner of the [GaugeVoter].
