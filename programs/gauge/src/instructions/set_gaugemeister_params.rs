@@ -13,7 +13,7 @@ pub struct SetGaugemeisterParams<'info> {
 
 impl<'info> Validate<'info> for SetGaugemeisterParams<'info> {
     fn validate(&self) -> ProgramResult {
-        assert_keys_eq!(self.foreman.key, self.gaugemeister.foreman);
+        assert_keys_eq!(self.foreman, self.gaugemeister.foreman);
 
         Ok(())
     }

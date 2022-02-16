@@ -6,7 +6,6 @@ use crate::*;
 
 /// Accounts for [gauge::create_gauge].
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct CreateGauge<'info> {
     /// The [Gauge] to be created.
     #[account(
@@ -16,7 +15,7 @@ pub struct CreateGauge<'info> {
             gaugemeister.key().as_ref(),
             quarry.key().as_ref(),
         ],
-        bump = bump,
+        bump,
         payer = payer
     )]
     pub gauge: Account<'info, Gauge>,
@@ -35,7 +34,7 @@ pub struct CreateGauge<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateGauge>, _bump: u8) -> ProgramResult {
+pub fn handler(ctx: Context<CreateGauge>) -> ProgramResult {
     let gauge = &mut ctx.accounts.gauge;
     gauge.gaugemeister = ctx.accounts.gaugemeister.key();
     gauge.quarry = ctx.accounts.quarry.key();

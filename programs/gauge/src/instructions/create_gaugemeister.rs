@@ -1,13 +1,12 @@
 //! Creates the [Gaugemeister].
 
 use num_traits::ToPrimitive;
-use vipers::{invariant, unwrap_int};
+use vipers::prelude::*;
 
 use crate::*;
 
 /// Accounts for [gauge::create_gaugemeister].
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct CreateGaugemeister<'info> {
     /// The [Gaugemeister] to be created.
     #[account(
@@ -16,7 +15,7 @@ pub struct CreateGaugemeister<'info> {
             b"Gaugemeister".as_ref(),
             base.key().as_ref(),
         ],
-        bump = bump,
+        bump,
         payer = payer
     )]
     pub gaugemeister: Account<'info, Gaugemeister>,
@@ -40,7 +39,6 @@ pub struct CreateGaugemeister<'info> {
 
 pub fn handler(
     ctx: Context<CreateGaugemeister>,
-    bump: u8,
     foreman: Pubkey,
     epoch_duration_seconds: u32,
     first_epoch_starts_at: u64,
@@ -54,7 +52,7 @@ pub fn handler(
     let gaugemeister = &mut ctx.accounts.gaugemeister;
 
     gaugemeister.base = ctx.accounts.base.key();
-    gaugemeister.bump = bump;
+    gaugemeister.bump = *unwrap_int!(ctx.bumps.get("gaugemeister"));
 
     gaugemeister.rewarder = ctx.accounts.operator.rewarder;
     gaugemeister.operator = ctx.accounts.operator.key();
