@@ -10,7 +10,7 @@
 #![deny(clippy::unwrap_used)]
 
 use anchor_lang::prelude::*;
-use vipers::Validate;
+use vipers::prelude::*;
 
 mod instructions;
 mod macros;
@@ -98,6 +98,13 @@ pub mod gauge {
         gauge_commit_vote::handler(ctx)
     }
 
+    /// Commits the vote of a [Gauge].
+    /// Only the voter can call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn gauge_commit_vote_v2(ctx: Context<GaugeCommitVoteV2>, _vote_bump: u8) -> ProgramResult {
+        gauge_commit_vote_v2::handler(ctx)
+    }
+
     /// Reverts a vote commitment of a [Gauge].
     /// Only the voter can call this.
     #[access_control(ctx.accounts.validate())]
@@ -138,6 +145,55 @@ pub mod gauge {
         new_foreman: Pubkey,
     ) -> ProgramResult {
         set_gaugemeister_params::handler(ctx, new_epoch_duration_seconds, new_foreman)
+    }
+
+    // Delegation
+
+    /// Creates a [GaugeDelegation] for a [GaugeVoter]. Permissionless.
+    #[access_control(ctx.accounts.validate())]
+    pub fn create_gauge_delegation(
+        ctx: Context<CreateGaugeDelegation>,
+        _bump: u8,
+    ) -> ProgramResult {
+        create_gauge_delegation::handler(ctx)
+    }
+
+    /// Sets the vote of a [Gauge] using the [GaugeDelegation].
+    /// Only the [GaugeDelegation::vote_setter] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn delegated_gauge_set_vote(
+        ctx: Context<DelegatedGaugeSetVote>,
+        weight: u32,
+    ) -> ProgramResult {
+        delegated_gauge_set_vote::handler(ctx, weight)
+    }
+
+    /// Reverts a committed vote of a [Gauge] using the [GaugeDelegation].
+    /// Only the [GaugeDelegation::vote_setter] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn delegated_gauge_revert_vote(ctx: Context<DelegatedGaugeRevertVote>) -> ProgramResult {
+        delegated_gauge_revert_vote::handler(ctx)
+    }
+
+    /// Commits a vote of a [Gauge] using the [GaugeDelegation].
+    /// Only the [GaugeDelegation::vote_committer] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn delegated_gauge_commit_vote(ctx: Context<DelegatedGaugeCommitVote>) -> ProgramResult {
+        delegated_gauge_commit_vote::handler(ctx)
+    }
+
+    /// Sets the [GaugeDelegation::vote_setter]. Only the [locked_voter::Escrow::vote_delegate] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn delegation_set_vote_setter(ctx: Context<DelegationSetVoteSetter>) -> ProgramResult {
+        delegation_set_vote_setter::handler(ctx)
+    }
+
+    /// Sets the [GaugeDelegation::vote_committer]. Only the [locked_voter::Escrow::vote_delegate] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn delegation_set_vote_committer(
+        ctx: Context<DelegationSetVoteCommitter>,
+    ) -> ProgramResult {
+        delegation_set_vote_committer::handler(ctx)
     }
 }
 

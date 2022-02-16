@@ -47,6 +47,13 @@ impl Gaugemeister {
         let voting_epoch = unwrap_int!(self.current_rewards_epoch.checked_add(1));
         Ok(voting_epoch)
     }
+
+    /// Fetches the current voting epoch, unwrapped.
+    /// This is only used in [gauge::prepare_epoch_gauge_voter].
+    pub(crate) fn voting_epoch_unwrapped(&self) -> u32 {
+        #[allow(clippy::unwrap_used)]
+        self.voting_epoch().unwrap()
+    }
 }
 
 /// A [Gauge] determines the rewards shares to give to a [quarry_mine::Quarry].
@@ -170,4 +177,22 @@ impl EpochGaugeVote {
             &crate::ID,
         )
     }
+}
+
+/// Enables delegating vote allocations to another address.
+/// Each [GaugeVoter] may only have one [GaugeDelegation].
+///
+/// If multiple [`Self::vote_setter`]s or [`Self::vote_committer`]s are desired,
+/// one should use a [Goki owner invoker](https://docs.tribeca.so/goki/smart-wallet#subaccounts) or some other sort of multisig.
+#[account(zero_copy)]
+#[derive(Debug, Default)]
+pub struct GaugeDelegation {
+    /// The [GaugeVoter].
+    pub gauge_voter: Pubkey,
+
+    /// Address which can call [gauge::delegated_gauge_set_vote] on behalf of the [Self::gauge_voter].
+    pub vote_setter: Pubkey,
+
+    /// Address which is allowed to commit votes on behalf of the gauge via [gauge::delegated_gauge_commit_vote].
+    pub vote_committer: Pubkey,
 }

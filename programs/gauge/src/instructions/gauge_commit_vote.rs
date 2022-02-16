@@ -28,7 +28,7 @@ pub struct GaugeCommitVote<'info> {
     #[account(
         init,
         seeds = [
-            b"EpochGaugeVote",
+            b"EpochGaugeVote".as_ref(),
             gauge_vote.key().as_ref(),
             epoch_gauge_voter.voting_epoch.to_le_bytes().as_ref(),
         ],
@@ -57,37 +57,43 @@ impl<'info> GaugeCommitVote<'info> {
         msg!("power: {}, shares: {}", power, total_shares);
         Some(total_shares)
     }
+
+    /// Handles the commit vote.
+    pub(crate) fn commit_vote(&mut self) -> ProgramResult {
+        let next_vote_shares = unwrap_int!(self.vote_shares_for_next_epoch());
+        // if zero vote shares, don't do anything
+        if next_vote_shares == 0 {
+            return Ok(());
+        }
+
+        let epoch_gauge = &mut self.epoch_gauge;
+        let epoch_voter = &mut self.epoch_gauge_voter;
+        let epoch_vote = &mut self.epoch_gauge_vote;
+
+        epoch_voter.allocated_power =
+            unwrap_int!(epoch_voter.allocated_power.checked_add(next_vote_shares));
+        epoch_vote.allocated_power = next_vote_shares;
+
+        epoch_gauge.total_power =
+            unwrap_int!(epoch_gauge.total_power.checked_add(next_vote_shares));
+
+        emit!(CommitGaugeVoteEvent {
+            gaugemeister: self.gauge.gaugemeister,
+            gauge: self.gauge.key(),
+            quarry: self.gauge.quarry,
+            gauge_voter_owner: self.gauge_voter.owner,
+            vote_shares_for_next_epoch: next_vote_shares,
+            voting_epoch: epoch_voter.voting_epoch,
+            updated_allocated_power: epoch_voter.allocated_power,
+            updated_total_power: epoch_gauge.total_power,
+        });
+
+        Ok(())
+    }
 }
 
 pub fn handler(ctx: Context<GaugeCommitVote>) -> ProgramResult {
-    let next_vote_shares = unwrap_int!(ctx.accounts.vote_shares_for_next_epoch());
-    // if zero vote shares, don't do anything
-    if next_vote_shares == 0 {
-        return Ok(());
-    }
-
-    let epoch_gauge = &mut ctx.accounts.epoch_gauge;
-    let epoch_voter = &mut ctx.accounts.epoch_gauge_voter;
-    let epoch_vote = &mut ctx.accounts.epoch_gauge_vote;
-
-    epoch_voter.allocated_power =
-        unwrap_int!(epoch_voter.allocated_power.checked_add(next_vote_shares));
-    epoch_vote.allocated_power = next_vote_shares;
-
-    epoch_gauge.total_power = unwrap_int!(epoch_gauge.total_power.checked_add(next_vote_shares));
-
-    emit!(CommitGaugeVoteEvent {
-        gaugemeister: ctx.accounts.gauge.gaugemeister,
-        gauge: ctx.accounts.gauge.key(),
-        quarry: ctx.accounts.gauge.quarry,
-        gauge_voter_owner: ctx.accounts.gauge_voter.owner,
-        vote_shares_for_next_epoch: next_vote_shares,
-        voting_epoch: epoch_voter.voting_epoch,
-        updated_allocated_power: epoch_voter.allocated_power,
-        updated_total_power: epoch_gauge.total_power,
-    });
-
-    Ok(())
+    ctx.accounts.commit_vote()
 }
 
 impl<'info> Validate<'info> for GaugeCommitVote<'info> {
