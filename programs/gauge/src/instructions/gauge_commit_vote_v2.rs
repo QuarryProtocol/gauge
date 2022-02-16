@@ -22,14 +22,15 @@ pub fn handler(ctx: Context<GaugeCommitVoteV2>) -> ProgramResult {
 
 impl<'info> GaugeCommitVoteV2<'info> {
     pub(crate) fn validate_without_delegate(&self) -> ProgramResult {
-        self.common.validate()
+        self.common.validate()?;
+        assert_keys_eq!(self.escrow, self.common.gauge_voter.escrow);
+        Ok(())
     }
 }
 
 impl<'info> Validate<'info> for GaugeCommitVoteV2<'info> {
     fn validate(&self) -> ProgramResult {
         self.validate_without_delegate()?;
-        assert_keys_eq!(self.escrow, self.common.gauge_voter.escrow);
         assert_keys_eq!(self.vote_delegate, self.escrow.vote_delegate);
         Ok(())
     }
