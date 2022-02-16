@@ -24,7 +24,7 @@ pub struct PrepareEpochGaugeVoter<'info> {
             #[allow(clippy::unwrap_used)]
             gaugemeister.current_rewards_epoch.checked_add(1).unwrap().to_le_bytes().as_ref()
         ],
-        bump = bump,
+        bump,
         payer = payer
     )]
     pub epoch_gauge_voter: Account<'info, EpochGaugeVoter>,
@@ -47,7 +47,7 @@ impl<'info> PrepareEpochGaugeVoter<'info> {
     }
 }
 
-pub fn handler(ctx: Context<PrepareEpochGaugeVoter>, _bump: u8) -> ProgramResult {
+pub fn handler(ctx: Context<PrepareEpochGaugeVoter>) -> ProgramResult {
     let voting_epoch = ctx.accounts.gaugemeister.voting_epoch()?;
     let voting_power = unwrap_int!(ctx.accounts.power());
 

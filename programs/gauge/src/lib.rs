@@ -32,55 +32,49 @@ pub mod gauge {
     #[access_control(ctx.accounts.validate())]
     pub fn create_gaugemeister(
         ctx: Context<CreateGaugemeister>,
-        bump: u8,
+        _bump: u8,
         foreman: Pubkey,
         epoch_duration_seconds: u32,
         first_epoch_starts_at: u64,
     ) -> ProgramResult {
-        create_gaugemeister::handler(
-            ctx,
-            bump,
-            foreman,
-            epoch_duration_seconds,
-            first_epoch_starts_at,
-        )
+        create_gaugemeister::handler(ctx, foreman, epoch_duration_seconds, first_epoch_starts_at)
     }
 
     /// Creates a [Gauge]. Permissionless.
     #[access_control(ctx.accounts.validate())]
-    pub fn create_gauge(ctx: Context<CreateGauge>, bump: u8) -> ProgramResult {
-        create_gauge::handler(ctx, bump)
+    pub fn create_gauge(ctx: Context<CreateGauge>, _bump: u8) -> ProgramResult {
+        create_gauge::handler(ctx)
     }
 
     /// Creates a [GaugeVoter]. Permissionless.
     #[access_control(ctx.accounts.validate())]
-    pub fn create_gauge_voter(ctx: Context<CreateGaugeVoter>, bump: u8) -> ProgramResult {
-        create_gauge_voter::handler(ctx, bump)
+    pub fn create_gauge_voter(ctx: Context<CreateGaugeVoter>, _bump: u8) -> ProgramResult {
+        create_gauge_voter::handler(ctx)
     }
 
     /// Creates a [GaugeVote]. Permissionless.
     #[access_control(ctx.accounts.validate())]
-    pub fn create_gauge_vote(ctx: Context<CreateGaugeVote>, bump: u8) -> ProgramResult {
-        create_gauge_vote::handler(ctx, bump)
+    pub fn create_gauge_vote(ctx: Context<CreateGaugeVote>, _bump: u8) -> ProgramResult {
+        create_gauge_vote::handler(ctx)
     }
 
     /// Creates an [EpochGauge]. Permissionless.
     #[access_control(ctx.accounts.validate())]
     pub fn create_epoch_gauge(
         ctx: Context<CreateEpochGauge>,
-        bump: u8,
+        _bump: u8,
         voting_epoch: u32,
     ) -> ProgramResult {
-        create_epoch_gauge::handler(ctx, bump, voting_epoch)
+        create_epoch_gauge::handler(ctx, voting_epoch)
     }
 
     /// Creates an [EpochGaugeVoter]. Permissionless.
     #[access_control(ctx.accounts.validate())]
     pub fn prepare_epoch_gauge_voter(
         ctx: Context<PrepareEpochGaugeVoter>,
-        bump: u8,
+        _bump: u8,
     ) -> ProgramResult {
-        prepare_epoch_gauge_voter::handler(ctx, bump)
+        prepare_epoch_gauge_voter::handler(ctx)
     }
 
     /// Resets an [EpochGaugeVoter]; that is, syncs the [EpochGaugeVoter]
