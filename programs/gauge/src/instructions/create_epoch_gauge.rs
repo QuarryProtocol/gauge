@@ -30,7 +30,7 @@ pub struct CreateEpochGauge<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateEpochGauge>, voting_epoch: u32) -> ProgramResult {
+pub fn handler(ctx: Context<CreateEpochGauge>, voting_epoch: u32) -> Result<()> {
     let epoch_gauge = &mut ctx.accounts.epoch_gauge;
     epoch_gauge.gauge = ctx.accounts.gauge.key();
     epoch_gauge.voting_epoch = voting_epoch;
@@ -46,7 +46,7 @@ pub fn handler(ctx: Context<CreateEpochGauge>, voting_epoch: u32) -> ProgramResu
 }
 
 impl<'info> Validate<'info> for CreateEpochGauge<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         Ok(())
     }
 }

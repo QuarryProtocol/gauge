@@ -1,5 +1,4 @@
 use crate::*;
-use vipers::assert_keys_eq;
 
 /// Accounts for [gauge::reset_epoch_gauge_voter].
 #[derive(Accounts)]
@@ -12,7 +11,7 @@ pub struct SetGaugemeisterParams<'info> {
 }
 
 impl<'info> Validate<'info> for SetGaugemeisterParams<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.foreman, self.gaugemeister.foreman);
 
         Ok(())
@@ -23,7 +22,7 @@ pub fn handler(
     ctx: Context<SetGaugemeisterParams>,
     new_epoch_duration_seconds: u32,
     new_foreman: Pubkey,
-) -> ProgramResult {
+) -> Result<()> {
     let gaugemeister = &mut ctx.accounts.gaugemeister;
     let prev_foreman = gaugemeister.foreman;
     let prev_epoch_duration_seconds = gaugemeister.epoch_duration_seconds;

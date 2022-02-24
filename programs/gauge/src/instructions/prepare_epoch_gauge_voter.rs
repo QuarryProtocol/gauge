@@ -2,11 +2,9 @@
 
 use crate::*;
 use num_traits::ToPrimitive;
-use vipers::{assert_keys_eq, unwrap_int};
 
 /// Accounts for [gauge::prepare_epoch_gauge_voter].
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct PrepareEpochGaugeVoter<'info> {
     pub gaugemeister: Account<'info, Gaugemeister>,
     pub locker: Account<'info, locked_voter::Locker>,
@@ -21,8 +19,7 @@ pub struct PrepareEpochGaugeVoter<'info> {
         seeds = [
             b"EpochGaugeVoter",
             gauge_voter.key().as_ref(),
-            #[allow(clippy::unwrap_used)]
-            gaugemeister.current_rewards_epoch.checked_add(1).unwrap().to_le_bytes().as_ref()
+            gaugemeister.voting_epoch()?.to_le_bytes().as_ref()
         ],
         bump,
         payer = payer
@@ -47,7 +44,7 @@ impl<'info> PrepareEpochGaugeVoter<'info> {
     }
 }
 
-pub fn handler(ctx: Context<PrepareEpochGaugeVoter>) -> ProgramResult {
+pub fn handler(ctx: Context<PrepareEpochGaugeVoter>) -> Result<()> {
     let voting_epoch = ctx.accounts.gaugemeister.voting_epoch()?;
     let voting_power = unwrap_int!(ctx.accounts.power());
 
@@ -72,7 +69,7 @@ pub fn handler(ctx: Context<PrepareEpochGaugeVoter>) -> ProgramResult {
 }
 
 impl<'info> Validate<'info> for PrepareEpochGaugeVoter<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.gaugemeister.locker, self.locker);
         assert_keys_eq!(self.escrow, self.gauge_voter.escrow);
         assert_keys_eq!(self.escrow.locker, self.locker);

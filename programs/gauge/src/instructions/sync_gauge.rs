@@ -1,6 +1,6 @@
 //! Enables a [Gauge].
 
-use vipers::{assert_keys_eq, invariant};
+use quarry_operator::Operator;
 
 use crate::*;
 
@@ -16,15 +16,16 @@ pub struct SyncGauge<'info> {
     /// The [EpochGauge].
     pub epoch_gauge: Account<'info, EpochGauge>,
 
-    /// The Quarry.
+    /// [Gauge::quarry].
     #[account(mut)]
     pub quarry: Account<'info, quarry_mine::Quarry>,
 
-    /// The Operator.
+    /// [Gaugemeister::operator].
     #[account(mut)]
-    pub operator: Account<'info, quarry_operator::Operator>,
+    pub operator: Account<'info, Operator>,
 
-    /// The Rewarder.
+    /// [Gaugemeister::rewarder].
+    /// CHECK: validated by key
     #[account(mut)]
     pub rewarder: UncheckedAccount<'info>,
 
@@ -53,7 +54,7 @@ pub struct SyncGaugeEvent {
 }
 
 impl<'info> SyncGauge<'info> {
-    fn set_rewards_share(&self) -> ProgramResult {
+    fn set_rewards_share(&self) -> Result<()> {
         // Only call CPI if the rewards share actually changed.
         if self.quarry.rewards_share != self.epoch_gauge.total_power {
             let gm_seeds: &[&[&[u8]]] = gaugemeister_seeds!(self.gaugemeister);
@@ -88,12 +89,12 @@ impl<'info> SyncGauge<'info> {
     }
 }
 
-pub fn handler(ctx: Context<SyncGauge>) -> ProgramResult {
+pub fn handler(ctx: Context<SyncGauge>) -> Result<()> {
     ctx.accounts.set_rewards_share()
 }
 
 impl<'info> Validate<'info> for SyncGauge<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.gaugemeister, self.gauge.gaugemeister);
         assert_keys_eq!(self.gaugemeister.rewarder, self.rewarder);
         assert_keys_eq!(self.gaugemeister.operator, self.operator);

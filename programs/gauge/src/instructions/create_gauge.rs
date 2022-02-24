@@ -34,7 +34,7 @@ pub struct CreateGauge<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateGauge>) -> ProgramResult {
+pub fn handler(ctx: Context<CreateGauge>) -> Result<()> {
     let gauge = &mut ctx.accounts.gauge;
     gauge.gaugemeister = ctx.accounts.gaugemeister.key();
     gauge.quarry = ctx.accounts.quarry.key();
@@ -44,7 +44,7 @@ pub fn handler(ctx: Context<CreateGauge>) -> ProgramResult {
 }
 
 impl<'info> Validate<'info> for CreateGauge<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.gaugemeister.rewarder, self.quarry.rewarder_key);
         Ok(())
     }

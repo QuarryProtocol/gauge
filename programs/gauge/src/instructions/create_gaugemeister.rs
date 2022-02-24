@@ -42,7 +42,7 @@ pub fn handler(
     foreman: Pubkey,
     epoch_duration_seconds: u32,
     first_epoch_starts_at: u64,
-) -> ProgramResult {
+) -> Result<()> {
     let now = unwrap_int!(Clock::get()?.unix_timestamp.to_u64());
     invariant!(
         now <= first_epoch_starts_at,
@@ -80,7 +80,7 @@ pub fn handler(
 }
 
 impl<'info> Validate<'info> for CreateGaugemeister<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         Ok(())
     }
 }

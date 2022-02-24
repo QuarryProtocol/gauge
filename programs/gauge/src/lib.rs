@@ -10,7 +10,7 @@
 #![deny(clippy::unwrap_used)]
 
 use anchor_lang::prelude::*;
-use vipers::Validate;
+use vipers::prelude::*;
 
 mod instructions;
 mod macros;
@@ -36,25 +36,25 @@ pub mod gauge {
         foreman: Pubkey,
         epoch_duration_seconds: u32,
         first_epoch_starts_at: u64,
-    ) -> ProgramResult {
+    ) -> Result<()> {
         create_gaugemeister::handler(ctx, foreman, epoch_duration_seconds, first_epoch_starts_at)
     }
 
     /// Creates a [Gauge]. Permissionless.
     #[access_control(ctx.accounts.validate())]
-    pub fn create_gauge(ctx: Context<CreateGauge>, _bump: u8) -> ProgramResult {
+    pub fn create_gauge(ctx: Context<CreateGauge>, _bump: u8) -> Result<()> {
         create_gauge::handler(ctx)
     }
 
     /// Creates a [GaugeVoter]. Permissionless.
     #[access_control(ctx.accounts.validate())]
-    pub fn create_gauge_voter(ctx: Context<CreateGaugeVoter>, _bump: u8) -> ProgramResult {
+    pub fn create_gauge_voter(ctx: Context<CreateGaugeVoter>, _bump: u8) -> Result<()> {
         create_gauge_voter::handler(ctx)
     }
 
     /// Creates a [GaugeVote]. Permissionless.
     #[access_control(ctx.accounts.validate())]
-    pub fn create_gauge_vote(ctx: Context<CreateGaugeVote>, _bump: u8) -> ProgramResult {
+    pub fn create_gauge_vote(ctx: Context<CreateGaugeVote>, _bump: u8) -> Result<()> {
         create_gauge_vote::handler(ctx)
     }
 
@@ -64,7 +64,7 @@ pub mod gauge {
         ctx: Context<CreateEpochGauge>,
         _bump: u8,
         voting_epoch: u32,
-    ) -> ProgramResult {
+    ) -> Result<()> {
         create_epoch_gauge::handler(ctx, voting_epoch)
     }
 
@@ -73,7 +73,7 @@ pub mod gauge {
     pub fn prepare_epoch_gauge_voter(
         ctx: Context<PrepareEpochGaugeVoter>,
         _bump: u8,
-    ) -> ProgramResult {
+    ) -> Result<()> {
         prepare_epoch_gauge_voter::handler(ctx)
     }
 
@@ -81,51 +81,51 @@ pub mod gauge {
     /// with the latest power amount only if the votes have yet to be
     /// committed. Permissionless.
     #[access_control(ctx.accounts.validate())]
-    pub fn reset_epoch_gauge_voter(ctx: Context<ResetEpochGaugeVoter>) -> ProgramResult {
+    pub fn reset_epoch_gauge_voter(ctx: Context<ResetEpochGaugeVoter>) -> Result<()> {
         reset_epoch_gauge_voter::handler(ctx)
     }
 
     /// Sets the vote of a [Gauge].
     #[access_control(ctx.accounts.validate())]
-    pub fn gauge_set_vote(ctx: Context<GaugeSetVote>, weight: u32) -> ProgramResult {
+    pub fn gauge_set_vote(ctx: Context<GaugeSetVote>, weight: u32) -> Result<()> {
         gauge_set_vote::handler(ctx, weight)
     }
 
     /// Commits the vote of a [Gauge].
     /// Anyone can call this on any voter's gauge votes.
     #[access_control(ctx.accounts.validate())]
-    pub fn gauge_commit_vote(ctx: Context<GaugeCommitVote>, _vote_bump: u8) -> ProgramResult {
+    pub fn gauge_commit_vote(ctx: Context<GaugeCommitVote>, _vote_bump: u8) -> Result<()> {
         gauge_commit_vote::handler(ctx)
     }
 
     /// Reverts a vote commitment of a [Gauge].
     /// Only the voter can call this.
     #[access_control(ctx.accounts.validate())]
-    pub fn gauge_revert_vote(ctx: Context<GaugeRevertVote>) -> ProgramResult {
+    pub fn gauge_revert_vote(ctx: Context<GaugeRevertVote>) -> Result<()> {
         gauge_revert_vote::handler(ctx)
     }
 
     /// Enables a [Gauge].
     #[access_control(ctx.accounts.validate())]
-    pub fn gauge_enable(ctx: Context<GaugeEnable>) -> ProgramResult {
+    pub fn gauge_enable(ctx: Context<GaugeEnable>) -> Result<()> {
         gauge_enable::handler(ctx)
     }
 
     /// Disables a [Gauge].
     #[access_control(ctx.accounts.validate())]
-    pub fn gauge_disable(ctx: Context<GaugeDisable>) -> ProgramResult {
+    pub fn gauge_disable(ctx: Context<GaugeDisable>) -> Result<()> {
         gauge_disable::handler(ctx)
     }
 
     /// Triggers the next epoch. Permissionless.
     #[access_control(ctx.accounts.validate())]
-    pub fn trigger_next_epoch(ctx: Context<TriggerNextEpoch>) -> ProgramResult {
+    pub fn trigger_next_epoch(ctx: Context<TriggerNextEpoch>) -> Result<()> {
         trigger_next_epoch::handler(ctx)
     }
 
     /// Synchronizes the [quarry_mine::Quarry] with the relevant [EpochGauge]. Permissionless.
     #[access_control(ctx.accounts.validate())]
-    pub fn sync_gauge(ctx: Context<SyncGauge>) -> ProgramResult {
+    pub fn sync_gauge(ctx: Context<SyncGauge>) -> Result<()> {
         sync_gauge::handler(ctx)
     }
 
@@ -136,13 +136,13 @@ pub mod gauge {
         ctx: Context<SetGaugemeisterParams>,
         new_epoch_duration_seconds: u32,
         new_foreman: Pubkey,
-    ) -> ProgramResult {
+    ) -> Result<()> {
         set_gaugemeister_params::handler(ctx, new_epoch_duration_seconds, new_foreman)
     }
 }
 
 /// Errors.
-#[error]
+#[error_code]
 pub enum ErrorCode {
     #[msg("You must be the foreman to perform this action.")]
     UnauthorizedNotForeman,

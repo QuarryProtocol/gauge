@@ -1,7 +1,5 @@
 //! Votes for a [Gauge].
 
-use vipers::{assert_keys_eq, invariant, unwrap_int};
-
 use crate::*;
 
 /// Accounts for [gauge::gauge_set_vote].
@@ -36,7 +34,7 @@ impl<'info> GaugeSetVote<'info> {
     }
 
     /// Sets a non-zero vote.
-    fn set_vote(&mut self, weight: u32) -> ProgramResult {
+    fn set_vote(&mut self, weight: u32) -> Result<()> {
         if weight != 0 {
             invariant!(!self.gauge.is_disabled, CannotVoteGaugeDisabled);
         }
@@ -76,12 +74,12 @@ impl<'info> GaugeSetVote<'info> {
     }
 }
 
-pub fn handler(ctx: Context<GaugeSetVote>, weight: u32) -> ProgramResult {
+pub fn handler(ctx: Context<GaugeSetVote>, weight: u32) -> Result<()> {
     ctx.accounts.set_vote(weight)
 }
 
 impl<'info> Validate<'info> for GaugeSetVote<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.gaugemeister, self.gauge.gaugemeister);
         assert_keys_eq!(self.gauge, self.gauge_vote.gauge);
         assert_keys_eq!(self.gauge_voter, self.gauge_vote.gauge_voter);

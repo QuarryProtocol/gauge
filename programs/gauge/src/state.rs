@@ -1,7 +1,5 @@
 //! Struct definitions for accounts that hold state.
 
-use vipers::unwrap_int;
-
 use crate::*;
 
 /// Manages the rewards shares of all [Gauge]s of a [quarry_mine::rewarder].
@@ -81,7 +79,7 @@ pub struct GaugeVoter {
     /// This is primarily used when provisioning an [EpochGaugeVoter]:
     /// 1. When one wants to commit their votes, they call [gauge::prepare_epoch_gauge_voter]
     /// 2. The [Self::weight_change_seqno] gets written to [EpochGaugeVoter::weight_change_seqno].
-    /// 3. In [gauge::gauge_commit_vote], if the [Self::weight_change_seqno] has changed, the transaction is blocked with a [ErrorCode::WeightSeqnoChanged] error.
+    /// 3. In [gauge::gauge_commit_vote], if the [Self::weight_change_seqno] has changed, the transaction is blocked with a [crate::ErrorCode::WeightSeqnoChanged] error.
     pub weight_change_seqno: u64,
 }
 

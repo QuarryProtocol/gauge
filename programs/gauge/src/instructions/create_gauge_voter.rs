@@ -34,7 +34,7 @@ pub struct CreateGaugeVoter<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<CreateGaugeVoter>) -> ProgramResult {
+pub fn handler(ctx: Context<CreateGaugeVoter>) -> Result<()> {
     let gauge_voter = &mut ctx.accounts.gauge_voter;
     gauge_voter.gaugemeister = ctx.accounts.gaugemeister.key();
     gauge_voter.escrow = ctx.accounts.escrow.key();
@@ -53,7 +53,7 @@ pub fn handler(ctx: Context<CreateGaugeVoter>) -> ProgramResult {
 }
 
 impl<'info> Validate<'info> for CreateGaugeVoter<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.escrow.locker, self.gaugemeister.locker);
         Ok(())
     }

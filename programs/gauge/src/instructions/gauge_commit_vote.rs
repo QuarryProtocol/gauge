@@ -59,7 +59,7 @@ impl<'info> GaugeCommitVote<'info> {
     }
 }
 
-pub fn handler(ctx: Context<GaugeCommitVote>) -> ProgramResult {
+pub fn handler(ctx: Context<GaugeCommitVote>) -> Result<()> {
     let next_vote_shares = unwrap_int!(ctx.accounts.vote_shares_for_next_epoch());
     // if zero vote shares, don't do anything
     if next_vote_shares == 0 {
@@ -91,7 +91,7 @@ pub fn handler(ctx: Context<GaugeCommitVote>) -> ProgramResult {
 }
 
 impl<'info> Validate<'info> for GaugeCommitVote<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.gaugemeister, self.gauge.gaugemeister);
         assert_keys_eq!(self.gauge, self.gauge_vote.gauge);
         assert_keys_eq!(self.gauge_voter, self.gauge_vote.gauge_voter);

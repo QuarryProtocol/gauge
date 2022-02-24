@@ -1,7 +1,5 @@
 //! Reverts a vote.
 
-use vipers::{assert_keys_eq, invariant, unwrap_int};
-
 use crate::*;
 
 /// Accounts for [gauge::gauge_revert_vote].
@@ -33,7 +31,7 @@ pub struct GaugeRevertVote<'info> {
     pub payer: Signer<'info>,
 }
 
-pub fn handler(ctx: Context<GaugeRevertVote>) -> ProgramResult {
+pub fn handler(ctx: Context<GaugeRevertVote>) -> Result<()> {
     let epoch_gauge = &mut ctx.accounts.epoch_gauge;
     let epoch_voter = &mut ctx.accounts.epoch_gauge_voter;
     let epoch_vote = &mut ctx.accounts.epoch_gauge_vote;
@@ -58,7 +56,7 @@ pub fn handler(ctx: Context<GaugeRevertVote>) -> ProgramResult {
 }
 
 impl<'info> Validate<'info> for GaugeRevertVote<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.gaugemeister, self.gauge.gaugemeister);
         let voting_epoch = self.gaugemeister.voting_epoch()?;
         invariant!(
