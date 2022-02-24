@@ -1,6 +1,6 @@
 //! Enables a [Gauge].
 
-use vipers::{assert_keys_eq, invariant};
+use quarry_operator::Operator;
 
 use crate::*;
 
@@ -16,15 +16,16 @@ pub struct SyncGauge<'info> {
     /// The [EpochGauge].
     pub epoch_gauge: Account<'info, EpochGauge>,
 
-    /// The Quarry.
+    /// [Gauge::quarry].
     #[account(mut)]
     pub quarry: Account<'info, quarry_mine::Quarry>,
 
-    /// The Operator.
+    /// [Gaugemeister::operator].
     #[account(mut)]
-    pub operator: Account<'info, quarry_operator::Operator>,
+    pub operator: Account<'info, Operator>,
 
-    /// The Rewarder.
+    /// [Gaugemeister::rewarder].
+    /// CHECK: validated by key
     #[account(mut)]
     pub rewarder: UncheckedAccount<'info>,
 

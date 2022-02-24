@@ -5,7 +5,6 @@ use num_traits::ToPrimitive;
 
 /// Accounts for [gauge::prepare_epoch_gauge_voter].
 #[derive(Accounts)]
-#[instruction(bump: u8)]
 pub struct PrepareEpochGaugeVoter<'info> {
     pub gaugemeister: Account<'info, Gaugemeister>,
     pub locker: Account<'info, locked_voter::Locker>,
@@ -20,8 +19,7 @@ pub struct PrepareEpochGaugeVoter<'info> {
         seeds = [
             b"EpochGaugeVoter",
             gauge_voter.key().as_ref(),
-            #[allow(clippy::unwrap_used)]
-            gaugemeister.current_rewards_epoch.checked_add(1).unwrap().to_le_bytes().as_ref()
+            gaugemeister.voting_epoch()?.to_le_bytes().as_ref()
         ],
         bump,
         payer = payer

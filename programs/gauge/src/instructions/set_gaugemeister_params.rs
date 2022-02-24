@@ -1,5 +1,4 @@
 use crate::*;
-use vipers::assert_keys_eq;
 
 /// Accounts for [gauge::reset_epoch_gauge_voter].
 #[derive(Accounts)]
