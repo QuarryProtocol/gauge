@@ -29,7 +29,7 @@ impl<'info> ResetEpochGaugeVoter<'info> {
     }
 }
 
-pub fn handler(ctx: Context<ResetEpochGaugeVoter>) -> ProgramResult {
+pub fn handler(ctx: Context<ResetEpochGaugeVoter>) -> Result<()> {
     let voting_power = unwrap_int!(ctx.accounts.power());
 
     let epoch_gauge_voter = &mut ctx.accounts.epoch_gauge_voter;
@@ -52,7 +52,7 @@ pub fn handler(ctx: Context<ResetEpochGaugeVoter>) -> ProgramResult {
 }
 
 impl<'info> Validate<'info> for ResetEpochGaugeVoter<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.gaugemeister.locker, self.locker);
         assert_keys_eq!(self.escrow, self.gauge_voter.escrow);
         assert_keys_eq!(self.escrow.locker, self.locker);

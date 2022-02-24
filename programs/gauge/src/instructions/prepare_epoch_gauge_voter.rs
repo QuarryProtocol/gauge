@@ -2,7 +2,6 @@
 
 use crate::*;
 use num_traits::ToPrimitive;
-use vipers::{assert_keys_eq, unwrap_int};
 
 /// Accounts for [gauge::prepare_epoch_gauge_voter].
 #[derive(Accounts)]
@@ -47,7 +46,7 @@ impl<'info> PrepareEpochGaugeVoter<'info> {
     }
 }
 
-pub fn handler(ctx: Context<PrepareEpochGaugeVoter>) -> ProgramResult {
+pub fn handler(ctx: Context<PrepareEpochGaugeVoter>) -> Result<()> {
     let voting_epoch = ctx.accounts.gaugemeister.voting_epoch()?;
     let voting_power = unwrap_int!(ctx.accounts.power());
 
@@ -72,7 +71,7 @@ pub fn handler(ctx: Context<PrepareEpochGaugeVoter>) -> ProgramResult {
 }
 
 impl<'info> Validate<'info> for PrepareEpochGaugeVoter<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(self.gaugemeister.locker, self.locker);
         assert_keys_eq!(self.escrow, self.gauge_voter.escrow);
         assert_keys_eq!(self.escrow.locker, self.locker);

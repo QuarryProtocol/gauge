@@ -13,7 +13,7 @@ pub struct TriggerNextEpoch<'info> {
     pub gaugemeister: Account<'info, Gaugemeister>,
 }
 
-pub fn handler(ctx: Context<TriggerNextEpoch>) -> ProgramResult {
+pub fn handler(ctx: Context<TriggerNextEpoch>) -> Result<()> {
     let now = unwrap_int!(Clock::get()?.unix_timestamp.to_u64());
     msg!(
         "now: {}; next: {}",
@@ -33,7 +33,7 @@ pub fn handler(ctx: Context<TriggerNextEpoch>) -> ProgramResult {
 }
 
 impl<'info> Validate<'info> for TriggerNextEpoch<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         Ok(())
     }
 }

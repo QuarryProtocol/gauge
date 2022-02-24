@@ -29,7 +29,7 @@ pub struct GaugeEnableEvent {
     pub foreman: Pubkey,
 }
 
-pub fn handler(ctx: Context<GaugeEnable>) -> ProgramResult {
+pub fn handler(ctx: Context<GaugeEnable>) -> Result<()> {
     let gauge = &mut ctx.accounts.gauge;
     gauge.is_disabled = false;
     emit!(GaugeEnableEvent {
@@ -41,7 +41,7 @@ pub fn handler(ctx: Context<GaugeEnable>) -> ProgramResult {
 }
 
 impl<'info> Validate<'info> for GaugeEnable<'info> {
-    fn validate(&self) -> ProgramResult {
+    fn validate(&self) -> Result<()> {
         assert_keys_eq!(
             self.foreman,
             self.gaugemeister.foreman,
