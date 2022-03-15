@@ -28,6 +28,3 @@ quarry-operator = { version = "^3.0", features = ["cpi"] }
 quarry-mine = { version = "^3.0", features = ["cpi"] }
 num-traits = "0.2"
 vipers = "^2.0"
-
-[dev-dependencies]
-proptest = { version = "1.0" }
