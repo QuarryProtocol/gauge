@@ -13,7 +13,7 @@
 
 Allows Tribeca Voting Escrows to vote on token allocations between different Quarries.
 
-Detailed documentation is available on the [Tribeca documentation site.](https://docs.tribeca.so/voting-escrow/gauges/)
+Detailed documentation is available on the [Tribeca documentation site.](https://docs.tribeca.so/electorate/gauges)
 
 ## License
 
