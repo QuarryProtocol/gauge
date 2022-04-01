@@ -24,7 +24,7 @@ default = []
 anchor-lang = "^0.22"
 anchor-spl = "^0.22"
 locked-voter = { version = "^0.5", features = ["cpi"] }
-quarry-operator = { version = "^3.0", features = ["cpi"] }
+quarry-operator = { version = "^4.2", features = ["cpi"] }
 quarry-mine = { version = "^3.0", features = ["cpi"] }
 num-traits = "0.2"
 u128 = "0.1"
