@@ -263,7 +263,7 @@ __metadata:
     typescript: ^4.6.3
   peerDependencies:
     "@project-serum/anchor": ^0.22
-    "@quarryprotocol/quarry-sdk": ^3.0.0
+    "@quarryprotocol/quarry-sdk": ^4.2.0
     "@saberhq/anchor-contrib": ^1.12
     "@saberhq/solana-contrib": ^1.12
     "@saberhq/token-utils": ^1.12
