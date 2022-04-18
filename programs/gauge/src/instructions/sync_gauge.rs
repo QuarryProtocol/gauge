@@ -101,7 +101,7 @@ impl<'info> Validate<'info> for SyncGauge<'info> {
         assert_keys_eq!(self.epoch_gauge.gauge, self.gauge);
 
         assert_keys_eq!(self.quarry, self.gauge.quarry);
-        assert_keys_eq!(self.quarry.rewarder_key, self.rewarder);
+        assert_keys_eq!(self.quarry.rewarder, self.rewarder);
         assert_keys_eq!(self.operator.rewarder, self.rewarder);
 
         invariant!(

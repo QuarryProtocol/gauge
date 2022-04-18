@@ -16,6 +16,7 @@ pub struct CreateGaugeVote<'info> {
             gauge.key().as_ref(),
         ],
         bump,
+        space = 8 + GaugeVote::LEN,
         payer = payer
     )]
     pub gauge_vote: Account<'info, GaugeVote>,

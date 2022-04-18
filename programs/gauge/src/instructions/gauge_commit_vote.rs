@@ -30,6 +30,7 @@ pub struct GaugeCommitVote<'info> {
             epoch_gauge_voter.voting_epoch.to_le_bytes().as_ref(),
         ],
         bump,
+        space = 8 + EpochGaugeVote::LEN,
         payer = payer
     )]
     pub epoch_gauge_vote: Account<'info, EpochGaugeVote>,

@@ -7,7 +7,7 @@ import { GaugeSDK } from "../../src";
 export type Workspace = GaugePrograms;
 
 export const makeSDK = (): GaugeSDK => {
-  const anchorProvider = anchor.Provider.env();
+  const anchorProvider = anchor.AnchorProvider.env();
   anchor.setProvider(anchorProvider);
   const provider = makeSaberProvider(anchorProvider);
   return GaugeSDK.load({

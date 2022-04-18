@@ -18,6 +18,7 @@ pub struct CreateEpochGauge<'info> {
             voting_epoch.to_le_bytes().as_ref()
         ],
         bump,
+        space = 8 + EpochGauge::LEN,
         payer = payer
     )]
     pub epoch_gauge: Account<'info, EpochGauge>,
