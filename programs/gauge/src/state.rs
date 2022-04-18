@@ -204,3 +204,62 @@ impl EpochGaugeVote {
         )
     }
 }
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_gaugemeister_len() {
+        assert_eq!(
+            Gaugemeister::default().try_to_vec().unwrap().len(),
+            Gaugemeister::LEN
+        );
+    }
+
+    #[test]
+    fn test_gauge_voter_len() {
+        assert_eq!(
+            GaugeVoter::default().try_to_vec().unwrap().len(),
+            GaugeVoter::LEN
+        );
+    }
+
+    #[test]
+    fn test_gauge_len() {
+        assert_eq!(Gauge::default().try_to_vec().unwrap().len(), Gauge::LEN);
+    }
+
+    #[test]
+    fn test_gauge_vote_len() {
+        assert_eq!(
+            GaugeVote::default().try_to_vec().unwrap().len(),
+            GaugeVote::LEN
+        );
+    }
+
+    #[test]
+    fn test_epoch_gauge_voter_len() {
+        assert_eq!(
+            EpochGaugeVoter::default().try_to_vec().unwrap().len(),
+            EpochGaugeVoter::LEN
+        );
+    }
+
+    #[test]
+    fn test_epoch_gauge_len() {
+        assert_eq!(
+            EpochGauge::default().try_to_vec().unwrap().len(),
+            EpochGauge::LEN
+        );
+    }
+
+    #[test]
+    fn test_epoch_gauge_vote_len() {
+        assert_eq!(
+            EpochGaugeVote::default().try_to_vec().unwrap().len(),
+            EpochGaugeVote::LEN
+        );
+    }
+}
