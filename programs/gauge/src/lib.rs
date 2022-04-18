@@ -8,6 +8,7 @@
 #![deny(rustdoc::all)]
 #![allow(rustdoc::missing_doc_code_examples)]
 #![deny(clippy::unwrap_used)]
+#![allow(deprecated)]
 
 use anchor_lang::prelude::*;
 use vipers::prelude::*;
@@ -30,6 +31,7 @@ pub mod gauge {
 
     /// Creates a [Gaugemeister].
     #[access_control(ctx.accounts.validate())]
+    #[deprecated(note = "Use `create_gaugemeister_v2` instead.")]
     pub fn create_gaugemeister(
         ctx: Context<CreateGaugemeister>,
         _bump: u8,
@@ -40,21 +42,61 @@ pub mod gauge {
         create_gaugemeister::handler(ctx, foreman, epoch_duration_seconds, first_epoch_starts_at)
     }
 
+    /// Creates a [Gaugemeister].
+    ///
+    /// The V2 variant removes the need to supply a bump seed.
+    #[access_control(ctx.accounts.validate())]
+    pub fn create_gaugemeister_v2(
+        ctx: Context<CreateGaugemeister>,
+        foreman: Pubkey,
+        epoch_duration_seconds: u32,
+        first_epoch_starts_at: u64,
+    ) -> Result<()> {
+        create_gaugemeister::handler(ctx, foreman, epoch_duration_seconds, first_epoch_starts_at)
+    }
+
     /// Creates a [Gauge]. Permissionless.
+    #[deprecated(note = "Use `create_gauge_v2` instead.")]
     #[access_control(ctx.accounts.validate())]
     pub fn create_gauge(ctx: Context<CreateGauge>, _bump: u8) -> Result<()> {
         create_gauge::handler(ctx)
     }
 
+    /// Creates a [Gauge]. Permissionless.
+    ///
+    /// The V2 variant removes the need to supply a bump seed.
+    #[access_control(ctx.accounts.validate())]
+    pub fn create_gauge_v2(ctx: Context<CreateGauge>) -> Result<()> {
+        create_gauge::handler(ctx)
+    }
+
     /// Creates a [GaugeVoter]. Permissionless.
+    #[deprecated(note = "Use `create_gauge_voter_v2` instead.")]
     #[access_control(ctx.accounts.validate())]
     pub fn create_gauge_voter(ctx: Context<CreateGaugeVoter>, _bump: u8) -> Result<()> {
         create_gauge_voter::handler(ctx)
     }
 
+    /// Creates a [GaugeVoter]. Permissionless.
+    ///
+    /// The V2 variant removes the need to supply a bump seed.
+    #[access_control(ctx.accounts.validate())]
+    pub fn create_gauge_voter_v2(ctx: Context<CreateGaugeVoter>) -> Result<()> {
+        create_gauge_voter::handler(ctx)
+    }
+
     /// Creates a [GaugeVote]. Permissionless.
+    #[deprecated(note = "Use `create_gauge_vote_v2` instead.")]
     #[access_control(ctx.accounts.validate())]
     pub fn create_gauge_vote(ctx: Context<CreateGaugeVote>, _bump: u8) -> Result<()> {
+        create_gauge_vote::handler(ctx)
+    }
+
+    /// Creates a [GaugeVote]. Permissionless.
+    ///
+    /// The V2 variant removes the need to supply a bump seed.
+    #[access_control(ctx.accounts.validate())]
+    pub fn create_gauge_vote_v2(ctx: Context<CreateGaugeVote>) -> Result<()> {
         create_gauge_vote::handler(ctx)
     }
 
@@ -69,11 +111,19 @@ pub mod gauge {
     }
 
     /// Creates an [EpochGaugeVoter]. Permissionless.
+    #[deprecated(note = "Use `prepare_epoch_gauge_voter_v2` instead.")]
     #[access_control(ctx.accounts.validate())]
     pub fn prepare_epoch_gauge_voter(
         ctx: Context<PrepareEpochGaugeVoter>,
         _bump: u8,
     ) -> Result<()> {
+        prepare_epoch_gauge_voter::handler(ctx)
+    }
+    /// Creates an [EpochGaugeVoter]. Permissionless.
+    ///
+    /// The V2 variant removes the need to supply a bump seed.
+    #[access_control(ctx.accounts.validate())]
+    pub fn prepare_epoch_gauge_voter_v2(ctx: Context<PrepareEpochGaugeVoter>) -> Result<()> {
         prepare_epoch_gauge_voter::handler(ctx)
     }
 
@@ -93,8 +143,18 @@ pub mod gauge {
 
     /// Commits the vote of a [Gauge].
     /// Anyone can call this on any voter's gauge votes.
+    #[deprecated(note = "Use `gauge_commit_vote_v2` instead.")]
     #[access_control(ctx.accounts.validate())]
     pub fn gauge_commit_vote(ctx: Context<GaugeCommitVote>, _vote_bump: u8) -> Result<()> {
+        gauge_commit_vote::handler(ctx)
+    }
+
+    /// Commits the vote of a [Gauge].
+    /// Anyone can call this on any voter's gauge votes.
+    ///
+    /// The V2 variant removes the need to supply a bump seed.
+    #[access_control(ctx.accounts.validate())]
+    pub fn gauge_commit_vote_v2(ctx: Context<GaugeCommitVote>) -> Result<()> {
         gauge_commit_vote::handler(ctx)
     }
 
