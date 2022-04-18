@@ -116,15 +116,12 @@ export class GaugeWrapper {
     gaugemeister: PublicKey;
     tx: TransactionEnvelope;
   }> {
-    const [gaugemeister, bump] = await findGaugemeisterAddress(
-      baseKP.publicKey
-    );
+    const [gaugemeister] = await findGaugemeisterAddress(baseKP.publicKey);
     return {
       gaugemeister,
       tx: this.provider.newTX(
         [
-          this.program.instruction.createGaugemeister(
-            bump,
+          this.program.instruction.createGaugemeisterV2(
             foreman,
             epochDurationSeconds,
             new u64(Math.floor(firstEpochStartsAt.getTime() / 1_000)),
@@ -156,11 +153,11 @@ export class GaugeWrapper {
     gaugemeister: PublicKey;
     quarry: PublicKey;
   }): Promise<{ gauge: PublicKey; tx: TransactionEnvelope }> {
-    const [gauge, bump] = await findGaugeAddress(gaugemeister, quarry);
+    const [gauge] = await findGaugeAddress(gaugemeister, quarry);
     return {
       gauge,
       tx: this.provider.newTX([
-        this.program.instruction.createGauge(bump, {
+        this.program.instruction.createGaugeV2({
           accounts: {
             gauge,
             gaugemeister,
@@ -188,14 +185,11 @@ export class GaugeWrapper {
     if (!escrowInfo) {
       throw new Error("escrow not found");
     }
-    const [gaugeVoter, bump] = await findGaugeVoterAddress(
-      gaugemeister,
-      escrow
-    );
+    const [gaugeVoter] = await findGaugeVoterAddress(gaugemeister, escrow);
     return {
       gaugeVoter,
       tx: this.provider.newTX([
-        this.program.instruction.createGaugeVoter(bump, {
+        this.program.instruction.createGaugeVoterV2({
           accounts: {
             gaugeVoter,
             gaugemeister,
@@ -219,11 +213,11 @@ export class GaugeWrapper {
     gaugeVoter: PublicKey;
     gauge: PublicKey;
   }): Promise<{ gaugeVote: PublicKey; tx: TransactionEnvelope }> {
-    const [gaugeVote, bump] = await findGaugeVoteAddress(gaugeVoter, gauge);
+    const [gaugeVote] = await findGaugeVoteAddress(gaugeVoter, gauge);
     return {
       gaugeVote,
       tx: this.provider.newTX([
-        this.program.instruction.createGaugeVote(bump, {
+        this.program.instruction.createGaugeVoteV2({
           accounts: {
             gaugeVoter,
             gaugeVote,
@@ -318,11 +312,11 @@ export class GaugeWrapper {
       gaugeData.gaugemeister,
       escrow
     );
-    const [gaugeVote, gvBump] = await findGaugeVoteAddress(gaugeVoter, gauge);
+    const [gaugeVote] = await findGaugeVoteAddress(gaugeVoter, gauge);
     const gvData = await this.fetchGaugeVote(gaugeVote);
     return this.provider.newTX([
       !gvData &&
-        this.program.instruction.createGaugeVote(gvBump, {
+        this.program.instruction.createGaugeVoteV2({
           accounts: {
             gaugeVoter,
             gaugeVote,
@@ -379,13 +373,10 @@ export class GaugeWrapper {
     const result = await Promise.all(
       gauges.map(async (gauge, i) => {
         const gvData = gaugeVotesData[i];
-        const [gaugeVote, gvBump] = await findGaugeVoteAddress(
-          gaugeVoter,
-          gauge
-        );
+        const [gaugeVote] = await findGaugeVoteAddress(gaugeVoter, gauge);
         if (!gvData) {
           return this.provider.newTX([
-            this.program.instruction.createGaugeVote(gvBump, {
+            this.program.instruction.createGaugeVoteV2({
               accounts: {
                 gaugeVoter,
                 gaugeVote,
@@ -485,13 +476,10 @@ export class GaugeWrapper {
     return await Promise.all(
       weights.map(async ({ gauge, weight }, i) => {
         const gvData = gaugeVotesData[i];
-        const [gaugeVote, gvBump] = await findGaugeVoteAddress(
-          gaugeVoter,
-          gauge
-        );
+        const [gaugeVote] = await findGaugeVoteAddress(gaugeVoter, gauge);
         return this.provider.newTX([
           !gvData &&
-            this.program.instruction.createGaugeVote(gvBump, {
+            this.program.instruction.createGaugeVoteV2({
               accounts: {
                 gaugeVoter,
                 gaugeVote,
@@ -571,13 +559,12 @@ export class GaugeWrapper {
     const [escrow] = await findEscrowAddress(gmData.locker, owner);
     const [gaugeVoter] = await findGaugeVoterAddress(gaugemeister, escrow);
 
-    const [epochGaugeVoter, epochGaugeVoterBump] =
-      await findEpochGaugeVoterAddress(
-        gaugeVoter,
-        gmData.currentRewardsEpoch + 1
-      );
+    const [epochGaugeVoter] = await findEpochGaugeVoterAddress(
+      gaugeVoter,
+      gmData.currentRewardsEpoch + 1
+    );
     return this.provider.newTX([
-      this.program.instruction.prepareEpochGaugeVoter(epochGaugeVoterBump, {
+      this.program.instruction.prepareEpochGaugeVoterV2({
         accounts: {
           gaugemeister,
           locker: gmData.locker,
@@ -672,7 +659,7 @@ export class GaugeWrapper {
     );
     const createEpochGauge =
       !skipEpochGaugeCreation && !(await this.fetchEpochGauge(epochGauge));
-    const [epochGaugeVote, voteBump] = await findEpochGaugeVoteAddress(
+    const [epochGaugeVote] = await findEpochGaugeVoteAddress(
       gaugeVote,
       gmData.currentRewardsEpoch + 1
     );
@@ -699,7 +686,7 @@ export class GaugeWrapper {
             systemProgram: SystemProgram.programId,
           },
         }),
-      this.program.instruction.gaugeCommitVote(voteBump, {
+      this.program.instruction.gaugeCommitVoteV2({
         accounts,
       }),
     ]);
@@ -789,7 +776,7 @@ export class GaugeWrapper {
           gaugeVoter,
           votingEpoch
         );
-        const [epochGaugeVote, voteBump] = await findEpochGaugeVoteAddress(
+        const [epochGaugeVote] = await findEpochGaugeVoteAddress(
           gaugeVote,
           gmData.currentRewardsEpoch + 1
         );
@@ -818,7 +805,7 @@ export class GaugeWrapper {
                 },
               }
             ),
-          this.program.instruction.gaugeCommitVote(voteBump, {
+          this.program.instruction.gaugeCommitVoteV2({
             accounts,
           }),
         ]);
