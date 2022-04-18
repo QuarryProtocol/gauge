@@ -8,6 +8,7 @@ use crate::*;
 #[derive(Accounts)]
 pub struct SyncGauge<'info> {
     /// The [Gaugemeister].
+    #[account(has_one = rewarder)]
     pub gaugemeister: Account<'info, Gaugemeister>,
 
     /// The [Gauge].
@@ -25,7 +26,7 @@ pub struct SyncGauge<'info> {
     pub operator: Account<'info, Operator>,
 
     /// [Gaugemeister::rewarder].
-    /// CHECK: validated by key
+    /// CHECK: validated by key, not deserialized to save CU's.
     #[account(mut)]
     pub rewarder: UncheckedAccount<'info>,
 

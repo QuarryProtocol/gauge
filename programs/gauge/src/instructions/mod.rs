@@ -1,5 +1,6 @@
 //! Instructions for the Quarry Gauge system.
 
+pub mod close_epoch_gauge_vote;
 pub mod create_epoch_gauge;
 pub mod create_gauge;
 pub mod create_gauge_vote;
@@ -16,6 +17,7 @@ pub mod set_gaugemeister_params;
 pub mod sync_gauge;
 pub mod trigger_next_epoch;
 
+pub use close_epoch_gauge_vote::*;
 pub use create_epoch_gauge::*;
 pub use create_gauge::*;
 pub use create_gauge_vote::*;

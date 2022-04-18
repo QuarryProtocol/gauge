@@ -1060,4 +1060,45 @@ export class GaugeWrapper {
       ),
     ]);
   }
+
+  /**
+   * Closes an EpochGaugeVote account.
+   * @returns
+   */
+  async closeEpochGaugeVote({
+    gauge,
+    gaugemeister,
+    voteDelegate = this.provider.walletKey,
+    escrow,
+    votingEpoch,
+    recipient = voteDelegate,
+  }: {
+    gauge: PublicKey;
+    gaugemeister: PublicKey;
+    voteDelegate?: PublicKey;
+    escrow: PublicKey;
+    votingEpoch: number;
+    recipient?: PublicKey;
+  }): Promise<TransactionEnvelope> {
+    const [gaugeVoter] = await findGaugeVoterAddress(gaugemeister, escrow);
+    const [gaugeVote] = await findGaugeVoteAddress(gaugeVoter, gauge);
+    const [epochGaugeVote] = await findEpochGaugeVoteAddress(
+      gaugeVote,
+      votingEpoch
+    );
+    return this.provider.newTX([
+      this.program.instruction.closeEpochGaugeVote(votingEpoch, {
+        accounts: {
+          epochGaugeVote,
+          gaugemeister,
+          gauge,
+          gaugeVoter,
+          gaugeVote,
+          escrow,
+          voteDelegate,
+          recipient,
+        },
+      }),
+    ]);
+  }
 }

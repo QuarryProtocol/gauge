@@ -16,6 +16,7 @@ pub struct GaugeRevertVote<'info> {
     pub epoch_gauge_voter: Account<'info, EpochGaugeVoter>,
 
     /// The escrow.
+    #[account(has_one = vote_delegate @ crate::ErrorCode::UnauthorizedNotDelegate)]
     pub escrow: Account<'info, locked_voter::Escrow>,
     /// The vote delegate.
     pub vote_delegate: Signer<'info>,

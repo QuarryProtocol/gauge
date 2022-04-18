@@ -139,6 +139,17 @@ pub mod gauge {
     ) -> Result<()> {
         set_gaugemeister_params::handler(ctx, new_epoch_duration_seconds, new_foreman)
     }
+
+    /// Closes an [EpochGaugeVote], sending lamports to a user-specified address.
+    ///
+    /// Only the [locked_voter::Escrow::vote_delegate] may call this.
+    #[access_control(ctx.accounts.validate())]
+    pub fn close_epoch_gauge_vote(
+        ctx: Context<CloseEpochGaugeVote>,
+        voting_epoch: u32,
+    ) -> Result<()> {
+        instructions::close_epoch_gauge_vote::handler(ctx, voting_epoch)
+    }
 }
 
 /// Errors.
@@ -168,4 +179,8 @@ pub enum ErrorCode {
     EpochClosed,
     #[msg("You must have zero allocated power in order to reset the epoch gauge.")]
     AllocatedPowerMustBeZero,
+    #[msg("The epoch in which you are closing an account for has not yet elapsed.")]
+    CloseEpochNotElapsed,
+    #[msg("You must be the vote delegate of the escrow to perform this action.")]
+    UnauthorizedNotDelegate,
 }
