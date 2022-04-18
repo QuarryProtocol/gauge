@@ -16,6 +16,7 @@ pub struct CreateGaugeVoter<'info> {
             escrow.key().as_ref(),
         ],
         bump,
+        space = 8 + GaugeVoter::LEN,
         payer = payer
     )]
     pub gauge_voter: Account<'info, GaugeVoter>,

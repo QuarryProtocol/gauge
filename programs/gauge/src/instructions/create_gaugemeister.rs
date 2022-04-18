@@ -16,6 +16,7 @@ pub struct CreateGaugemeister<'info> {
             base.key().as_ref(),
         ],
         bump,
+        space = 8 + Gaugemeister::LEN,
         payer = payer
     )]
     pub gaugemeister: Account<'info, Gaugemeister>,

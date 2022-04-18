@@ -16,6 +16,7 @@ pub struct CreateGauge<'info> {
             quarry.key().as_ref(),
         ],
         bump,
+        space = 8 + Gauge::LEN,
         payer = payer
     )]
     pub gauge: Account<'info, Gauge>,
@@ -45,7 +46,7 @@ pub fn handler(ctx: Context<CreateGauge>) -> Result<()> {
 
 impl<'info> Validate<'info> for CreateGauge<'info> {
     fn validate(&self) -> Result<()> {
-        assert_keys_eq!(self.gaugemeister.rewarder, self.quarry.rewarder_key);
+        assert_keys_eq!(self.gaugemeister.rewarder, self.quarry.rewarder);
         Ok(())
     }
 }

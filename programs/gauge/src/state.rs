@@ -1,5 +1,7 @@
 //! Struct definitions for accounts that hold state.
 
+use anchor_lang::solana_program::pubkey::PUBKEY_BYTES;
+
 use crate::*;
 
 /// Manages the rewards shares of all [Gauge]s of a [quarry_mine::rewarder].
@@ -40,6 +42,9 @@ pub struct Gaugemeister {
 }
 
 impl Gaugemeister {
+    /// Length of a [Gaugemeister] in bytes.
+    pub const LEN: usize = PUBKEY_BYTES + 1 + PUBKEY_BYTES * 4 + 4 + 4 + 8 + PUBKEY_BYTES * 2;
+
     /// Fetches the current voting epoch. This is always the epoch after [Self::current_rewards_epoch].
     pub fn voting_epoch(&self) -> Result<u32> {
         let voting_epoch = unwrap_int!(self.current_rewards_epoch.checked_add(1));
@@ -58,6 +63,11 @@ pub struct Gauge {
     /// If true, this Gauge cannot receive any more votes
     /// and rewards shares cannot be synchronized from it.
     pub is_disabled: bool,
+}
+
+impl Gauge {
+    /// Length of a [Gauge] in bytes.
+    pub const LEN: usize = PUBKEY_BYTES * 2 + 1;
 }
 
 /// A [GaugeVoter] represents an [locked_voter::Escrow] that can vote on gauges.
@@ -83,6 +93,11 @@ pub struct GaugeVoter {
     pub weight_change_seqno: u64,
 }
 
+impl GaugeVoter {
+    /// Length of a [GaugeVoter] in bytes.
+    pub const LEN: usize = PUBKEY_BYTES * 3 + 4 + 8;
+}
+
 /// A [GaugeVote] is a user's vote for a given [Gauge].
 #[account]
 #[derive(Copy, Debug, Default)]
@@ -94,6 +109,11 @@ pub struct GaugeVote {
 
     /// Proportion of votes that the voter is applying to this gauge.
     pub weight: u32,
+}
+
+impl GaugeVote {
+    /// Length of a [GaugeVote] in bytes.
+    pub const LEN: usize = PUBKEY_BYTES * 2 + 4;
 }
 
 /// An [EpochGauge] is a [Gauge]'s total committed votes for a given epoch.
@@ -118,6 +138,11 @@ pub struct EpochGauge {
     pub total_power: u64,
 }
 
+impl EpochGauge {
+    /// Length of an [EpochGauge] in bytes.
+    pub const LEN: usize = PUBKEY_BYTES + 4 + 8;
+}
+
 /// An [EpochGaugeVoter] is a [GaugeVoter]'s total committed votes for a
 /// given [Gauge] at a given epoch.
 #[account]
@@ -136,6 +161,11 @@ pub struct EpochGaugeVoter {
     /// The total amount of gauge voting power that has been allocated.
     /// If this number is non-zero, vote weights cannot be changed until they are all withdrawn.
     pub allocated_power: u64,
+}
+
+impl EpochGaugeVoter {
+    /// Length of an [EpochGaugeVoter] in bytes.
+    pub const LEN: usize = PUBKEY_BYTES + 4 + 8 * 3;
 }
 
 /// An [EpochGaugeVote] is a user's committed votes for a given [Gauge] at a given epoch.
@@ -157,6 +187,11 @@ pub struct EpochGaugeVote {
     /// vote_power_at_expiry * (weight / total_weight)
     /// ```
     pub allocated_power: u64,
+}
+
+impl EpochGaugeVote {
+    /// Length of an [EpochGaugeVote] in bytes.
+    pub const LEN: usize = 8;
 }
 
 impl EpochGaugeVote {

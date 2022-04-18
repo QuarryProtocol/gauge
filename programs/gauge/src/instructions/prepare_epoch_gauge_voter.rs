@@ -22,6 +22,7 @@ pub struct PrepareEpochGaugeVoter<'info> {
             gaugemeister.voting_epoch()?.to_le_bytes().as_ref()
         ],
         bump,
+        space = 8 + EpochGaugeVoter::LEN,
         payer = payer
     )]
     pub epoch_gauge_voter: Account<'info, EpochGaugeVoter>,
