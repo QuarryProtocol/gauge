@@ -1,9 +1,15 @@
+import { LangErrorCode } from "@project-serum/anchor";
 import type { Operator } from "@quarryprotocol/quarry-sdk";
 import { QUARRY_CODERS } from "@quarryprotocol/quarry-sdk";
 import { matchError } from "@saberhq/anchor-contrib";
-import { expectTXTable } from "@saberhq/chai-solana";
+import {
+  assertTXSuccess,
+  assertTXThrows,
+  expectTX,
+  expectTXTable,
+} from "@saberhq/chai-solana";
 import type { TokenAmount } from "@saberhq/token-utils";
-import { createMint, u64 } from "@saberhq/token-utils";
+import { createMint, sleep, u64 } from "@saberhq/token-utils";
 import type { PublicKey } from "@solana/web3.js";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import type { LockerWrapper } from "@tribecahq/tribeca-sdk";
@@ -79,11 +85,11 @@ describe("Gauge", () => {
       });
     gaugemeister = theGaugemeister;
 
-    await expectTXTable(createGMTX, "create gaugemeister").to.be.fulfilled;
-    await expectTXTable(
+    await assertTXSuccess(createGMTX, "create gaugemeister");
+    await assertTXSuccess(
       operatorW.setShareAllocator(gaugemeister),
       "set GM to share allocator"
-    ).to.be.fulfilled;
+    );
 
     const farmTokenMint = await createMint(adminSDK.provider);
     const { quarry: theQuarry, tx: createQuarryTX } =
@@ -91,14 +97,14 @@ describe("Gauge", () => {
         tokenMint: farmTokenMint,
       });
     quarry = theQuarry;
-    await expectTXTable(createQuarryTX, "create quarry").to.be.fulfilled;
+    await assertTXSuccess(createQuarryTX, "create quarry");
 
     const { gauge: theGauge, tx: createGaugeTX } =
       await voterSDK.gauge.createGauge({
         gaugemeister,
         quarry,
       });
-    await expectTXTable(createGaugeTX, "create gauge").to.be.fulfilled;
+    await assertTXSuccess(createGaugeTX, "create gauge");
     gauge = theGauge;
 
     const { gaugeVoter: theGaugeVoter, tx: createGaugeVoterTX } =
@@ -106,8 +112,7 @@ describe("Gauge", () => {
         gaugemeister,
         escrow: voterEscrow,
       });
-    await expectTXTable(createGaugeVoterTX, "create gauge voter").to.be
-      .fulfilled;
+    await assertTXSuccess(createGaugeVoterTX, "create gauge voter");
     gaugeVoter = theGaugeVoter;
 
     const { gaugeVote: _gaugeVote, tx: createGaugeVoteTX } =
@@ -115,7 +120,7 @@ describe("Gauge", () => {
         gaugeVoter,
         gauge,
       });
-    await expectTXTable(createGaugeVoteTX, "create gauge vote").to.be.fulfilled;
+    await assertTXSuccess(createGaugeVoteTX, "create gauge vote");
   });
 
   it("should have correct gaugemeister data", async () => {
@@ -332,6 +337,123 @@ describe("Gauge", () => {
           .abs(),
         "quarry 1 should have approx 2x quarry 2"
       ).to.bignumber.lt(new BN(2));
+    });
+
+    it("should allow closing the epoch gauge votes if the epoch has passed", async () => {
+      // create the epoch gauge
+      const createEpochGaugeTX = await voterSDK.gauge.createEpochGauge({
+        gauge,
+      });
+
+      // enable the gauge
+      await assertTXSuccess(
+        await adminSDK.gauge.enableGauge({
+          gauge,
+        }),
+        "enable gauge 1"
+      );
+
+      // Trigger an epoch so that we have some voting weight
+      await assertTXSuccess(
+        createEpochGaugeTX.combine(
+          voterSDK.gauge.triggerNextEpoch({ gaugemeister })
+        ),
+        "trigger epoch step"
+      );
+
+      const gmData = await voterSDK.gauge.fetchGaugemeister(gaugemeister);
+      invariant(gmData);
+      expect(gmData.currentRewardsEpoch).to.eq(1);
+
+      await expectTX(
+        await voterSDK.gauge.closeEpochGaugeVote({
+          gauge,
+          gaugemeister,
+          escrow: voterEscrow,
+          votingEpoch: 2,
+        }),
+        "epoch gauge vote should not exist in the beginning"
+      ).to.be.rejectedWith(LangErrorCode.AccountNotInitialized.toString(16));
+
+      await expectTXTable(
+        await voterSDK.gauge.prepareEpochGaugeVoter({
+          gaugemeister,
+        }),
+        "prepare epoch gauge voter",
+        { verbosity: "error" }
+      ).to.be.fulfilled;
+      const commitTXs = await voterSDK.gauge.commitVotes({
+        gaugemeister,
+        gauges: [gauge],
+      });
+      for (const [i, commitTX] of commitTXs.entries()) {
+        await expectTXTable(commitTX, `commit gauge ${i + 1}`).to.be.fulfilled;
+      }
+
+      await assertTXThrows(
+        await voterSDK.gauge.closeEpochGaugeVote({
+          gauge,
+          gaugemeister,
+          escrow: voterEscrow,
+          votingEpoch: 2,
+        }),
+        GaugeErrors.CloseEpochNotElapsed,
+        "cannot close a pending epoch gauge vote"
+      );
+
+      // wait for next epoch
+      await sleep(TEST_EPOCH_SECONDS * 1_000 + 500);
+
+      // Trigger an epoch so that we have some voting weight
+      await expectTXTable(
+        voterSDK.gauge.triggerNextEpoch({ gaugemeister }),
+        "trigger second epoch"
+      ).to.be.fulfilled;
+      // create the epoch gauge
+      const createEpochGaugeTX2 = await voterSDK.gauge.createEpochGauge({
+        gauge,
+      });
+      await assertTXSuccess(createEpochGaugeTX2, "create epoch gauge 2");
+
+      const gmData2 = await voterSDK.gauge.fetchGaugemeister(gaugemeister);
+      invariant(gmData2);
+      expect(gmData2.currentRewardsEpoch).to.eq(2);
+
+      const recipientKP = Keypair.generate();
+
+      expect(await voterSDK.provider.getAccountInfo(recipientKP.publicKey)).to
+        .be.null;
+
+      await assertTXSuccess(
+        await voterSDK.gauge.closeEpochGaugeVote({
+          gauge,
+          gaugemeister,
+          escrow: voterEscrow,
+          votingEpoch: 2,
+          recipient: recipientKP.publicKey,
+        }),
+        "close old epoch gauge vote"
+      );
+
+      const recipientBalance = (
+        await voterSDK.provider.getAccountInfo(recipientKP.publicKey)
+      )?.accountInfo.lamports;
+      expect(recipientBalance).to.be.gt(0);
+
+      await expectTX(
+        await voterSDK.gauge.closeEpochGaugeVote({
+          gauge,
+          gaugemeister,
+          escrow: voterEscrow,
+          votingEpoch: 2,
+        }),
+        "cannot close an epoch gauge vote multiple times"
+      ).to.be.rejectedWith(LangErrorCode.AccountNotInitialized.toString(16));
+
+      const recipientBalance2 = (
+        await voterSDK.provider.getAccountInfo(recipientKP.publicKey)
+      )?.accountInfo.lamports;
+      expect(recipientBalance2).to.eq(recipientBalance);
     });
   });
 

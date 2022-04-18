@@ -6,11 +6,14 @@ use num_traits::ToPrimitive;
 /// Accounts for [gauge::prepare_epoch_gauge_voter].
 #[derive(Accounts)]
 pub struct PrepareEpochGaugeVoter<'info> {
+    #[account(has_one = locker)]
     pub gaugemeister: Account<'info, Gaugemeister>,
     pub locker: Account<'info, locked_voter::Locker>,
+    #[account(has_one = locker)]
     pub escrow: Account<'info, locked_voter::Escrow>,
 
-    /// Gauge vote.
+    /// [GaugeVoter].
+    #[account(has_one = gaugemeister, has_one = escrow)]
     pub gauge_voter: Account<'info, GaugeVoter>,
 
     /// The [EpochGaugeVoter].

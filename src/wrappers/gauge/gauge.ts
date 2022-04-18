@@ -1062,7 +1062,7 @@ export class GaugeWrapper {
   }
 
   /**
-   * Synchronizes a current Gauge with the Quarry.
+   * Closes an EpochGaugeVote account.
    * @returns
    */
   async closeEpochGaugeVote({
