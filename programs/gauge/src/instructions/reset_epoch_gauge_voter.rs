@@ -7,15 +7,22 @@ use vipers::{assert_keys_eq, invariant, unwrap_int};
 /// Accounts for [gauge::reset_epoch_gauge_voter].
 #[derive(Accounts)]
 pub struct ResetEpochGaugeVoter<'info> {
+    #[account(has_one = locker)]
     pub gaugemeister: Account<'info, Gaugemeister>,
+
+    /// The [Gaugemeister::locker].
     pub locker: Account<'info, locked_voter::Locker>,
+
+    /// The [GaugeVoter::escrow].
+    #[account(has_one = locker)]
     pub escrow: Account<'info, locked_voter::Escrow>,
 
-    /// Gauge vote.
+    /// The [EpochGaugeVoter::gauge_voter].
+    #[account(has_one = gaugemeister, has_one = escrow)]
     pub gauge_voter: Account<'info, GaugeVoter>,
 
-    /// The [EpochGaugeVoter].
-    #[account(mut)]
+    /// The [EpochGaugeVoter] to reset.
+    #[account(mut, has_one = gauge_voter)]
     pub epoch_gauge_voter: Account<'info, EpochGaugeVoter>,
 }
 

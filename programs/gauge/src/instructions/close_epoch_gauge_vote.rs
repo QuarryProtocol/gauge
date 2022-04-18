@@ -37,7 +37,7 @@ pub struct CloseEpochGaugeVote<'info> {
     pub gauge_vote: Account<'info, GaugeVote>,
 
     /// The [Escrow] which owns this [EpochGaugeVote].
-    #[account(has_one = vote_delegate)]
+    #[account(has_one = vote_delegate @ crate::ErrorCode::UnauthorizedNotDelegate)]
     pub escrow: Account<'info, Escrow>,
 
     /// The [Escrow::vote_delegate].

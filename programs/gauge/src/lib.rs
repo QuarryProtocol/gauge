@@ -181,4 +181,6 @@ pub enum ErrorCode {
     AllocatedPowerMustBeZero,
     #[msg("The epoch in which you are closing an account for has not yet elapsed.")]
     CloseEpochNotElapsed,
+    #[msg("You must be the vote delegate of the escrow to perform this action.")]
+    UnauthorizedNotDelegate,
 }
