@@ -22,7 +22,7 @@ generate_declaration_file() {
 
     # types
     echo "import type { $PREFIX as $typename } from './$prog.raw';" >>$OUT_PATH
-    echo "import type { IDL as $rawName } from './$prog.raw';" >>$OUT_PATH
+    echo "import { IDL as $rawName } from './$prog.raw';" >>$OUT_PATH
 
     echo "export { $typename, $rawName };" >>$OUT_PATH
 
