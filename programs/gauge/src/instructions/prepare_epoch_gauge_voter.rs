@@ -20,7 +20,7 @@ pub struct PrepareEpochGaugeVoter<'info> {
     #[account(
         init,
         seeds = [
-            b"EpochGaugeVoter",
+            b"EpochGaugeVoter".as_ref(),
             gauge_voter.key().as_ref(),
             gaugemeister.voting_epoch()?.to_le_bytes().as_ref()
         ],

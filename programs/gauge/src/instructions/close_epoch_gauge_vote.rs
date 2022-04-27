@@ -12,7 +12,7 @@ pub struct CloseEpochGaugeVote<'info> {
     #[account(
         mut,
         seeds = [
-            b"EpochGaugeVote",
+            b"EpochGaugeVote".as_ref(),
             gauge_vote.key().as_ref(),
             voting_epoch.to_le_bytes().as_ref(),
         ],

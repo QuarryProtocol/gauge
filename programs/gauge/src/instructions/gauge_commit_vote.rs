@@ -25,7 +25,7 @@ pub struct GaugeCommitVote<'info> {
     #[account(
         init,
         seeds = [
-            b"EpochGaugeVote",
+            b"EpochGaugeVote".as_ref(),
             gauge_vote.key().as_ref(),
             epoch_gauge_voter.voting_epoch.to_le_bytes().as_ref(),
         ],
