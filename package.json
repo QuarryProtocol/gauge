@@ -67,7 +67,7 @@
     "typescript": "^4.6.3"
   },
   "peerDependencies": {
-    "@project-serum/anchor": ">=0.22",
+    "@project-serum/anchor": ">=0.24",
     "@quarryprotocol/quarry-sdk": "^5",
     "@saberhq/anchor-contrib": "^1.12",
     "@saberhq/solana-contrib": "^1.12",

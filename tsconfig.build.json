@@ -3,7 +3,8 @@
   "compilerOptions": {
     "module": "CommonJS",
     "noEmit": false,
-    "outDir": "dist/cjs/"
+    "outDir": "dist/cjs/",
+    "types": []
   },
   "include": ["src/"]
 }
