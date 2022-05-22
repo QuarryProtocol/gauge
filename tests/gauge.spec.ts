@@ -137,14 +137,16 @@ describe("Gauge", () => {
       await expectTXTable(syncTX, "sync gauge").to.be.rejectedWith(/0x1771/);
       // 0th epoch gauge does not exist
       const gaugeData = await voterSDK.gauge.fetchGauge(gauge);
+      invariant(gaugeData, "gaugemeister must exist");
       const gmData = await voterSDK.gauge.fetchGaugemeister(
         gaugeData.gaugemeister
       );
-      expect(
-        await voterSDK.provider.getAccountInfo(
-          await findEpochGaugeVoteAddress(gauge, gmData?.currentRewardsEpoch)
-        )
-      ).to.be.null;
+      invariant(gmData, "gaugemeister must exist");
+      const [epochGaugeVote] = await findEpochGaugeVoteAddress(
+        gauge,
+        gmData.currentRewardsEpoch
+      );
+      expect(await voterSDK.provider.getAccountInfo(epochGaugeVote)).to.be.null;
     });
 
     it("allows syncing after epoch step", async () => {
