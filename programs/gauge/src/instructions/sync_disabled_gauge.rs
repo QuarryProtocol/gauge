@@ -4,7 +4,7 @@ use quarry_operator::Operator;
 
 use crate::*;
 
-/// Accounts for [gauge::sync_gauge].
+/// Accounts for [gauge::sync_disabled_gauge].
 #[derive(Accounts)]
 pub struct SyncDisabledGauge<'info> {
     /// The [Gaugemeister].
