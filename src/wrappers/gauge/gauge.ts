@@ -993,6 +993,22 @@ export class GaugeWrapper {
     if (!gmData) {
       throw new Error("gaugemeister data not found");
     }
+    if (gaugeData.isDisabled) {
+      return this.provider.newTX([
+        this.program.instruction.syncDisabledGauge({
+          accounts: {
+            gaugemeister: gaugeData.gaugemeister,
+            gauge,
+            quarry: gaugeData.quarry,
+            operator: gmData.operator,
+            rewarder: gmData.rewarder,
+            quarryMineProgram: QUARRY_ADDRESSES.Mine,
+            quarryOperatorProgram: QUARRY_ADDRESSES.Operator,
+          },
+        }),
+      ]);
+    }
+
     const [epochGauge] = await findEpochGaugeAddress(
       gauge,
       gmData.currentRewardsEpoch
