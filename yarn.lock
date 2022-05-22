@@ -400,9 +400,9 @@ __metadata:
   peerDependencies:
     "@project-serum/anchor": ">=0.24"
     "@quarryprotocol/quarry-sdk": ^5
-    "@saberhq/anchor-contrib": ^1.12
-    "@saberhq/solana-contrib": ^1.12
-    "@saberhq/token-utils": ^1.12
+    "@saberhq/anchor-contrib": ^1.13
+    "@saberhq/solana-contrib": ^1.13
+    "@saberhq/token-utils": ^1.13
     "@solana/web3.js": ^1.42
     "@tribecahq/tribeca-sdk": ^0.5.6
     bn.js: ^5.2.0
