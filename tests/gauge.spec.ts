@@ -134,8 +134,19 @@ describe("Gauge", () => {
       const syncTX = await voterSDK.gauge.syncGauge({
         gauge,
       });
+      await expectTXTable(syncTX, "sync gauge").to.be.rejectedWith(/0x1771/);
       // 0th epoch gauge does not exist
-      await expectTXTable(syncTX, "sync gauge").to.be.rejectedWith(/0xbc4/);
+      const gaugeData = await voterSDK.gauge.fetchGauge(gauge);
+      invariant(gaugeData, "gaugemeister must exist");
+      const gmData = await voterSDK.gauge.fetchGaugemeister(
+        gaugeData.gaugemeister
+      );
+      invariant(gmData, "gaugemeister must exist");
+      const [epochGaugeVote] = await findEpochGaugeVoteAddress(
+        gauge,
+        gmData.currentRewardsEpoch
+      );
+      expect(await voterSDK.provider.getAccountInfo(epochGaugeVote)).to.be.null;
     });
 
     it("allows syncing after epoch step", async () => {

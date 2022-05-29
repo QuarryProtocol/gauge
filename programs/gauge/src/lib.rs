@@ -189,6 +189,12 @@ pub mod gauge {
         sync_gauge::handler(ctx)
     }
 
+    /// Sets the [quarry_mine::Quarry] rewards to zero if the gauge is disabled. Permissionless.
+    #[access_control(ctx.accounts.validate())]
+    pub fn sync_disabled_gauge(ctx: Context<SyncDisabledGauge>) -> Result<()> {
+        sync_disabled_gauge::handler(ctx)
+    }
+
     /// Sets new parameters on the [Gaugemeister].
     /// Only the [Gaugemeister::foreman] may call this.
     #[access_control(ctx.accounts.validate())]
